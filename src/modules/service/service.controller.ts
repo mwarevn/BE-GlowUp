@@ -34,8 +34,8 @@ export class ServiceController {
     @Res() res: Response,
   ) {
     try {
-      const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-      createServiceDto.picture = imgData.data.link;
+      // const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+      // createServiceDto.picture = imgData.data.link;
       const service = await this.serviceService.create(createServiceDto);
       res.json(service);
     } catch (error) {
@@ -45,16 +45,17 @@ export class ServiceController {
           HttpStatus.CONFLICT,
         );
       }
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get()
-  findAll() {
-    return this.serviceService.findAll();
+  async findAll() {
+    try {
+      return await this.serviceService.findAll();
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get(':id')
