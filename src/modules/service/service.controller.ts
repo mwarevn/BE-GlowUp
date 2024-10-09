@@ -35,8 +35,8 @@ export class ServiceController {
     @Res() res: Response,
   ) {
     try {
-      const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-      createServiceDto.picture = imgData.data.link;
+      // const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+      // createServiceDto.picture = imgData.data.link;
       const service = await this.serviceService.create(createServiceDto);
       res.json(service);
     } catch (error) {
