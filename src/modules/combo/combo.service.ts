@@ -56,7 +56,18 @@ export class ComboService {
     return comboWithPrice;
   }
 
-  async findFilter(filter: any) {}
+  async findFilter(id: string) {
+    // Tìm tất cả các combo có chứa serviceId trong mảng services
+    const combos = await PrismaDB.combo.findMany({
+      where: {
+        services: {
+          has: id, // Lọc ra combo có chứa serviceId trong mảng services
+        },
+      },
+    });
+
+    return combos;
+  }
 
   async findOne(id: string) {
     return await PrismaDB.combo.findUnique({

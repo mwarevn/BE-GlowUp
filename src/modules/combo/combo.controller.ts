@@ -76,7 +76,11 @@ export class ComboController {
     const combo = await this.comboService.findAll();
     return combo;
   }
-
+  @Get('filter/:id')
+  async findFilter(@Param('id') id: string) {
+    const combo = await this.comboService.findFilter(id);
+    return combo;
+  }
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.comboService.findOne(id);
