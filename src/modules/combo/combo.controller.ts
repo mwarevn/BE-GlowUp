@@ -33,8 +33,6 @@ export class ComboController {
     @Res() res: Response,
   ) {
     try {
-      const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-      createComboDto.picture = imgData.data.link;
       const combo = await this.comboService.create(createComboDto);
       res.json(combo);
     } catch (error) {
@@ -44,10 +42,7 @@ export class ComboController {
           HttpStatus.CONFLICT,
         );
       }
-      throw new HttpException(
-        'Internal server error' + error,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

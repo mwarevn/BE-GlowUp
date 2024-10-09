@@ -27,8 +27,25 @@ export class ComboService {
     return combo;
   }
 
-  findAll() {
-    return PrismaDB.combo.findMany();
+  async findAll() {
+    const combos = await PrismaDB.combo.findMany();
+
+    const comboWithPrice = [];
+    for (const combo of combos) {
+      const servicePrices = await PrismaDB.service.findMany();
+
+      const price = servicePrices.reduce(
+        (acc, service) => acc + parseFloat(service.price),
+        0,
+      );
+
+      comboWithPrice.push({
+        ...combo,
+        price: price + '.000 VND',
+      });
+    }
+
+    return comboWithPrice;
   }
 
   async findOne(id: string) {

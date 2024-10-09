@@ -3,6 +3,7 @@ import {
   IsArray,
   IsDefined,
   IsNotEmpty,
+  IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
@@ -13,7 +14,7 @@ export class CreateComboDto {
   @IsString()
   name: string;
 
-  @IsString()
+  @IsOptional()
   price?: string;
 
   picture?: string;
