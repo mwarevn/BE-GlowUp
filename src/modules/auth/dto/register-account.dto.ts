@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   IsEmail,
@@ -11,18 +12,19 @@ import {
 } from 'class-validator';
 
 export class RegisterAccountDTO {
-  @IsString({ message: 'Họ và tên không đúng định dạng!' })
-  @MaxLength(100, { message: 'Họ và tên không được dài quá 50 ký tự!' })
+  @IsString()
+  @MaxLength(100)
+  @ApiProperty({ example: 'Anh minh tit đẹp trai nhất nhóm' })
   readonly full_name: string;
 
-  @IsMobilePhone('vi-VN', null, {
-    message: 'Số điện thoại không đúng định dạng!',
-  })
+  @IsMobilePhone('vi-VN', null)
   @IsOptional()
   @Length(10)
+  @ApiProperty({ example: '0988885993' })
   readonly phone_number: number;
 
   @IsString()
-  @MinLength(6, { message: 'Mật khẩu tối thiểu phải có 8 ký tự!' })
+  @MinLength(6)
+  @ApiProperty({ example: '123123' })
   readonly password: string;
 }

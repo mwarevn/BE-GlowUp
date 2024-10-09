@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   IsEmail,
@@ -13,20 +14,21 @@ import {
 } from 'class-validator';
 
 export class ForgotPasswdDTO {
-  @IsMobilePhone('vi-VN', null, {
-    message: 'Số điện thoại không đúng định dạng!',
-  })
+  @IsMobilePhone('vi-VN', null)
   @Length(10)
+  @ApiProperty({ example: '0972945022' })
   readonly phone_number: number;
 
   @IsString()
-  @MinLength(6, { message: 'Mật khẩu tối thiểu phải có 8 ký tự!' })
+  @MinLength(6)
+  @ApiProperty({ example: '123321' })
   readonly new_password: string;
 
   @IsString()
   @ValidateIf((o) => o.password)
   @IsString()
   @IsEqual('new_password', { message: 'Confirm password must match password' })
+  @ApiProperty({ example: '123321' })
   readonly confirm_password: string;
 }
 

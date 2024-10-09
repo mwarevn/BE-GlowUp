@@ -12,11 +12,7 @@ import {
 } from 'class-validator';
 
 export class LoginDTO {
-  @IsMobilePhone(
-    'vi-VN',
-    {},
-    { message: 'Số điện thoại có định dạng không chính xác!' },
-  )
+  @IsMobilePhone('vi-VN', {})
   @Length(10)
   @ApiProperty({ example: '0968999999' })
   readonly phone_number?: string;
@@ -24,6 +20,6 @@ export class LoginDTO {
   @ApiProperty({ example: '12345678' })
   @IsString()
   @IsDefined()
-  @IsNotEmpty({ message: 'Mật khẩu không được bỏ trống!' })
+  @IsNotEmpty()
   readonly password: string;
 }
