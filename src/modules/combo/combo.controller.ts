@@ -11,6 +11,7 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  UploadedFile,
 } from '@nestjs/common';
 import { ComboService } from './combo.service';
 import { CreateComboDto } from './dto/create-combo.dto';
@@ -32,12 +33,13 @@ export class ComboController {
   @Post()
   async create(
     @Body() createComboDto: CreateComboDto,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
     @Res() res: Response,
   ) {
     try {
-      // const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-      // createComboDto.picture = imgData.data.link;
+      const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+      createComboDto.picture = imgData.data.link;
       const services = createComboDto.services
         .split(',')
         .filter((id) => id.trim() !== '');
@@ -89,6 +91,7 @@ export class ComboController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
     @Body() updateComboDto: UpdateComboDto,
     @Req() req: Request,
     @Res() res: Response,
