@@ -30,12 +30,13 @@ export class ServiceController {
   @Post()
   async create(
     @Body() createServiceDto: CreateServiceDto,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
     @Res() res: Response,
   ) {
     try {
-      // const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-      // createServiceDto.picture = imgData.data.link;
+      const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+      createServiceDto.picture = imgData.data.link;
       const service = await this.serviceService.create(createServiceDto);
       res.json(service);
     } catch (error) {
@@ -66,6 +67,7 @@ export class ServiceController {
   async update(
     @Param('id') id: string,
     @Body() updateServiceDto: UpdateServiceDto,
+    @UploadedFile() file: Express.Multer.File,
     @Req() req: Request,
     @Res() res: Response,
   ) {
