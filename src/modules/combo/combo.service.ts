@@ -18,12 +18,14 @@ export class ComboService {
         set.add(id);
       }
     }
+
     const combo = await this.prismaService.combo.create({
       data: {
         ...data,
         services: Array.from(set) as string[],
       },
     });
+
     return combo;
   }
 
@@ -32,7 +34,13 @@ export class ComboService {
 
     const comboWithPrice = [];
     for (const combo of combos) {
-      const servicePrices = await PrismaDB.service.findMany();
+      const servicePrices = await PrismaDB.service.findMany({
+        where: {
+          id: {
+            in: combo.services,
+          },
+        },
+      });
 
       const price = servicePrices.reduce(
         (acc, service) => acc + parseFloat(service.price),
@@ -41,12 +49,14 @@ export class ComboService {
 
       comboWithPrice.push({
         ...combo,
-        price: price + '.000 VND',
+        price,
       });
     }
 
     return comboWithPrice;
   }
+
+  async findFilter(filter: any) {}
 
   async findOne(id: string) {
     return await PrismaDB.combo.findUnique({
