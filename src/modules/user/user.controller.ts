@@ -24,6 +24,7 @@ import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/roles.guard';
 import { uploadSingleImageThirdParty } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+import { UpdateNumberphoneDTO } from 'src/modules/user/dto/user.update-number_phone.dto';
 import { UpdateProfileUserDTO } from 'src/modules/user/dto/user.update.dto';
 import { UserService } from 'src/modules/user/user.service';
 
@@ -41,6 +42,44 @@ export class UserController {
     );
 
     res.json({ success: true });
+  }
+
+  @Patch('update-phone-number')
+  @UseGuards(AuthGuard)
+  async updateNumberPhone(
+    // @Body() updateNumberphoneDto: UpdateNumberphoneDTO,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    console.log(123);
+    // const current_user = req['user'];
+
+    // if (current_user['phone_number'] === updateNumberphoneDto.phone_number) {
+    //   return res.json({ success: true });
+    // }
+
+    // try {
+    //   const exitsUser = await this.userService.getUser({
+    //     number_phone: updateNumberphoneDto.phone_number,
+    //   });
+
+    //   if (exitsUser) {
+    //     throw new BadRequestException(
+    //       'This number phone is already exist on system!',
+    //     );
+    //   }
+
+    //   const updatedUser = await this.userService.updatePhoneNumber(
+    //     current_user['id'],
+    //     updateNumberphoneDto.phone_number,
+    //   );
+
+    //   if (!updatedUser) {
+    //     throw new ServiceUnavailableException();
+    //   }
+    // } catch (error) {
+    //   throw new ServiceUnavailableException(error.message);
+    // }
   }
 
   @Patch(':id')

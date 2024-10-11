@@ -51,4 +51,14 @@ export class UserService {
       select: selectFileds,
     });
   }
+
+  // update phone number
+  async updatePhoneNumber(id: string, phone_number: string) {
+    return await PrismaDB.user.update({
+      where: { id },
+      data: {
+        phone_number,
+      },
+    });
+  }
 }
