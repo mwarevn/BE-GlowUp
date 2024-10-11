@@ -20,13 +20,13 @@ export class ServiceService {
     return service;
   }
 
-  findAll() {
-    const services = PrismaDB.combo.findMany();
+  async findAll() {
+    const services = await PrismaDB.service.findMany();
     return services;
   }
 
   findOne(id: string) {
-    const service = PrismaDB.combo.findUnique({
+    const service = PrismaDB.service.findUnique({
       where: { id },
     });
     return service;

@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   IsEmail,
@@ -14,17 +15,20 @@ import {
 
 export class ChangePasswdDTO {
   @IsString()
-  @MinLength(6, { message: 'Mật khẩu tối thiểu phải có 8 ký tự!' })
+  @MinLength(6)
+  @ApiProperty({ example: '123123' })
   readonly current_password: string;
 
   @IsString()
-  @MinLength(6, { message: 'Mật khẩu tối thiểu phải có 8 ký tự!' })
+  @MinLength(6)
+  @ApiProperty({ example: '123321' })
   readonly new_password: string;
 
   @IsString()
   @ValidateIf((o) => o.password)
   @IsString()
   @IsEqual('new_password', { message: 'Confirm password must match password' })
+  @ApiProperty({ example: '123321' })
   readonly confirm_password: string;
 }
 

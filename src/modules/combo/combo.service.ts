@@ -18,17 +18,55 @@ export class ComboService {
         set.add(id);
       }
     }
+
     const combo = await this.prismaService.combo.create({
       data: {
         ...data,
         services: Array.from(set) as string[],
       },
     });
+
     return combo;
   }
 
-  findAll() {
-    return PrismaDB.combo.findMany();
+  async findAll() {
+    const combos = await PrismaDB.combo.findMany();
+
+    const comboWithPrice = [];
+    for (const combo of combos) {
+      const servicePrices = await PrismaDB.service.findMany({
+        where: {
+          id: {
+            in: combo.services,
+          },
+        },
+      });
+
+      const price = servicePrices.reduce(
+        (acc, service) => acc + parseFloat(service.price),
+        0,
+      );
+
+      comboWithPrice.push({
+        ...combo,
+        price,
+      });
+    }
+
+    return comboWithPrice;
+  }
+
+  async findFilter(id: string) {
+    // Tìm tất cả các combo có chứa serviceId trong mảng services
+    const combos = await PrismaDB.combo.findMany({
+      where: {
+        services: {
+          has: id, // Lọc ra combo có chứa serviceId trong mảng services
+        },
+      },
+    });
+
+    return combos;
   }
 
   async findOne(id: string) {

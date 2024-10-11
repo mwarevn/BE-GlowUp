@@ -45,9 +45,9 @@ export class UploadService {
     const dedata = await uploadImgur.json();
 
     if (!dedata.success) {
-      return null
+      return null;
     }
 
-    return dedata
+    return dedata;
   }
 }
