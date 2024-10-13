@@ -19,6 +19,7 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { UploadService } from '../upload/upload.service';
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 @UseInterceptors(uploadSingleImageInterceptor())
 @Controller('service')
 export class ServiceController {
@@ -61,6 +62,8 @@ export class ServiceController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
     return this.serviceService.findOne(id);
   }
   @Patch(':id')
@@ -72,6 +75,8 @@ export class ServiceController {
     @Res() res: Response,
   ) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(id))
+        return `not found mongoose Types ObjectId ${id}`;
       const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
       updateServiceDto.picture = imgData.data.link;
       const service = await this.serviceService.update(id, updateServiceDto);
@@ -87,6 +92,8 @@ export class ServiceController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
     return this.serviceService.remove(id);
   }
 }
