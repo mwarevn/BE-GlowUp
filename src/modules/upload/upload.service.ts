@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
 import { Request, Response } from 'express';
+import { join } from 'path';
 
 @Injectable()
 export class UploadService {

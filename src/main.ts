@@ -38,6 +38,8 @@ async function bootstrap() {
 
   // app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
+  app.useStaticAssets(join(__dirname, '..', 'public/uploads'));
+
   // swagger
   const config = new DocumentBuilder()
     .setTitle('API docs - DATN')

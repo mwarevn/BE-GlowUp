@@ -14,7 +14,7 @@ export class ServiceService {
   constructor(private prisma: PrismaService) {}
 
   async create(createServiceDto: CreateServiceDto) {
-    const service = await this.prisma.service.create({
+    const service = await PrismaDB.service.create({
       data: createServiceDto,
     });
     return service;
@@ -33,7 +33,7 @@ export class ServiceService {
   }
 
   update(id: string, updateServiceDto: UpdateServiceDto) {
-    const service = this.prisma.service.update({
+    const service = PrismaDB.service.update({
       where: { id },
       data: updateServiceDto,
     });
