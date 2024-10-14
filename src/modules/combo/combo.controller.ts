@@ -12,6 +12,7 @@ import {
   HttpException,
   HttpStatus,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { ComboService } from './combo.service';
 import { CreateComboDto } from './dto/create-combo.dto';
@@ -85,6 +86,11 @@ export class ComboController {
       return `not found mongoose Types ObjectId ${id}`;
     const combo = await this.comboService.findFilter(id);
     return combo;
+  }
+
+  @Get('search')
+  async search(@Query('q') query: string) {
+    return this.comboService.search(query);
   }
   @Get(':id')
   findOne(@Param('id') id: string) {
