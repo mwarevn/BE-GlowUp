@@ -11,6 +11,7 @@ import { ComboModule } from './modules/combo/combo.module';
 import { ServiceModule } from './modules/service/service.module';
 import { StylistModule } from './modules/stylist/stylist.module';
 import { CustomerModule } from './modules/customer/customer.module';
+import { BannerModule } from './modules/banner/banner.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CustomerModule } from './modules/customer/customer.module';
     ServiceModule,
     StylistModule,
     CustomerModule,
+    BannerModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

@@ -9,6 +9,7 @@ export const PrismaDB = prisma.$extends(
       User: true,
       Service: true,
       Combo: true,
+      Banner: true,
     },
   }),
 );

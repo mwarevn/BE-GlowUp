@@ -19,6 +19,7 @@ import {
 } from '@nestjs/common';
 import { Roles } from '@prisma/client';
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/roles.guard';
@@ -91,6 +92,8 @@ export class UserController {
     @Res() res: Response,
   ) {
     console.log(updateProfileDTO);
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
 
     const user = req['user'];
     // TODO: thêm phần quyền cập nhật - user chỉnh profile - stylist chỉnh profile và profile users
@@ -128,6 +131,9 @@ export class UserController {
     @Req() req: Request,
     @Res() res: Response,
   ) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
+
     const user = req['user'];
 
     if (user['id'] !== id) {
