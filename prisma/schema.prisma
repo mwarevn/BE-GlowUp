@@ -90,3 +90,12 @@ model Combo {
   updatedAt   DateTime @updatedAt
   deleted     Boolean  @default(false)
 }
+
+model Banner {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   @unique
+  banner     String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deleted     Boolean  @default(false)
+}

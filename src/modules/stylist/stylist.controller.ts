@@ -23,6 +23,7 @@ import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { UploadService } from 'src/modules/upload/upload.service';
 import { Roles } from '@prisma/client';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
+import mongoose from 'mongoose';
 
 @Controller('stylist')
 export class StylistController {
@@ -75,6 +76,8 @@ export class StylistController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
     const existsStylist = await this.stylistService.findOne(id);
 
     if (!existsStylist) {
@@ -87,6 +90,8 @@ export class StylistController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(id))
+        return `not found mongoose Types ObjectId ${id}`;
       await this.stylistService.remove(id);
       return { success: true };
     } catch (error) {
