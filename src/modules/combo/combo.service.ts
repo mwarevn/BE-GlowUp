@@ -69,6 +69,14 @@ export class ComboService {
     return combos;
   }
 
+  async search(query: string) {
+    return PrismaDB.combo.findMany({
+      where: {
+        OR: [{ name: { contains: query, mode: 'insensitive' } }],
+      },
+    });
+  }
+
   async findOne(id: string) {
     return await PrismaDB.combo.findUnique({
       where: {

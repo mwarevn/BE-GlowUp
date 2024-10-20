@@ -12,6 +12,7 @@ import {
   HttpException,
   HttpStatus,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { ComboService } from './combo.service';
 import { CreateComboDto } from './dto/create-combo.dto';
@@ -21,6 +22,7 @@ import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { PrismaDB } from '../prisma/prisma.extensions';
+import mongoose from 'mongoose';
 
 @UseInterceptors(uploadSingleImageInterceptor())
 @Controller('combo')
@@ -80,8 +82,15 @@ export class ComboController {
   }
   @Get('filter/:id')
   async findFilter(@Param('id') id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
     const combo = await this.comboService.findFilter(id);
     return combo;
+  }
+
+  @Get('search')
+  async search(@Query('q') query: string) {
+    return this.comboService.search(query);
   }
   @Get(':id')
   findOne(@Param('id') id: string) {
@@ -97,6 +106,8 @@ export class ComboController {
     @Res() res: Response,
   ) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(id))
+        return `not found mongoose Types ObjectId ${id}`;
       const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
       updateComboDto.picture = imgData.data.link;
       const combo = await this.comboService.update(id, updateComboDto);
@@ -111,6 +122,8 @@ export class ComboController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return `not found mongoose Types ObjectId ${id}`;
     return this.comboService.remove(id);
   }
 }
