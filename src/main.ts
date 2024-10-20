@@ -7,9 +7,7 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as protectAPI from 'protect-api';
-
-// console.log(appFirebase)
+import * as bodyParsers from '@meneprojects/body-parsers';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -50,7 +48,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
   // end
 
-  await app.listen(PORT, protectAPI).then(() => {
+  await app.listen(PORT, bodyParsers).then(() => {
     console.log('Application running on PORT: ' + PORT);
   });
 }
