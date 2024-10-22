@@ -14,6 +14,7 @@ import { CustomerModule } from './modules/customer/customer.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { VnpayModule } from './modules/vnpay/vnpay.module';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { VnpayModule } from './modules/vnpay/vnpay.module';
     BannerModule,
     BookingModule,
     VnpayModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
