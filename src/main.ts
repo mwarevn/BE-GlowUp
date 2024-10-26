@@ -72,8 +72,7 @@ async function bootstrap() {
     console.log(
       ' > Swagger running on: http://localhost:' + PORT + '/api-docs',
     );
-    console.log('\n');
-    console.log('──────────────────────────────────────────────────────');
+    console.log('\n\n');
   });
 }
 
