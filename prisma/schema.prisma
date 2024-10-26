@@ -37,7 +37,7 @@ model User {
   gender        Gender    @default(MALE)
   role          Roles     @default(CUSTOMER)
   full_name     String
-  phone_number  String   // @unique
+  phone_number  String // @unique
   password      String?
   avatar        String?
   date_of_birth DateTime?
@@ -54,7 +54,7 @@ model User {
 type Profile {
   customer CustomerProfile? // Embedded Customer profile
   stylist  StylistProfile? // Embedded Stylist profile
-  // adminProfile    AdminProfile?     // Embedded Admin profile 
+  // adminProfile    AdminProfile?     // Embedded Admin profile
 }
 
 type CustomerProfile {
@@ -92,10 +92,34 @@ model Combo {
 }
 
 model Banner {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @unique
-  banner     String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deleted     Boolean  @default(false)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  banner    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+model Booking {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String
+  stylistId  String
+  comboId    String?
+  startTime  DateTime
+  endTime    DateTime
+  status     BookingStatus @default(PENDING)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  deleted    Boolean       @default(false)
+
+  // customer User               @relation("customerInfo", fields: [customerId], references: [id])
+  // stylist  User               @relation("stylistInfo", fields: [stylistId], references: [id])
+  // combo    Combo              @relation("comboInfo", fields: [comboId], references: [id])
 }
