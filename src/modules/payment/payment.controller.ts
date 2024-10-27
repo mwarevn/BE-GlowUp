@@ -1,34 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { Request, Response } from 'express';
 
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @Post()
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentService.create(createPaymentDto);
+  @Get('bank-list')
+  getBankList() {
+    return this.paymentService.getBankList();
   }
 
-  @Get()
-  findAll() {
-    return this.paymentService.findAll();
+  @Get('create-payment')
+  async createPayment(@Req() req: Request) {
+    const paymentUrl = await this.paymentService.createPaymentUrl(req);
+    return { paymentUrl };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.paymentService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-    return this.paymentService.update(+id, updatePaymentDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.paymentService.remove(+id);
-  }
+  // async createPayment(
+  //   @Req() req: Request,
+  //   @Res() res: Response,
+  //   // @Query('amount') amount: number,
+  //   // @Query('orderId') orderId: string,
+  //   // @Query('bankCode') bankCode: string,
+  // ) {
+  //   // const order = {
+  //   //   amount,
+  //   //   orderId,
+  //   //   bankCode,
+  //   // };
+  //   const paymentUrl = await this.paymentService.createPaymentUrl(req, res);
+  //   return { paymentUrl };
+  // }
 }

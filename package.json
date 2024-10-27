@@ -55,6 +55,8 @@
     "prisma-extension-soft-delete": "^1.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "socket": "^0.14.12",
+    "socket.io": "^4.8.1",
     "vnpay": "^1.6.0"
   },
   "devDependencies": {

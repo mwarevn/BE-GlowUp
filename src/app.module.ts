@@ -13,8 +13,9 @@ import { StylistModule } from './modules/stylist/stylist.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { BannerModule } from './modules/banner/banner.module';
 import { BookingModule } from './modules/booking/booking.module';
-import { VnpayModule } from './modules/vnpay/vnpay.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { VnpayModule } from 'nestjs-vnpay';
+import { ignoreLogger } from 'vnpay';
 
 @Module({
   imports: [
