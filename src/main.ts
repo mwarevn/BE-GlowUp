@@ -12,7 +12,6 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as bodyParsers from 'body-parser';
 
 // class CustomLogger extends ConsoleLogger implements LoggerService {
 //   log(message: string) {
@@ -65,7 +64,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
   // end
 
-  await app.listen(PORT, bodyParsers).then(() => {
+  await app.listen(PORT).then(() => {
     console.clear();
     console.log('──────────────────────────────────────────────────────');
     console.log('\n');
