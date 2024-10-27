@@ -1,25 +1,12 @@
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import {
-  ClassSerializerInterceptor,
-  Logger,
-  LoggerService,
-  ValidationPipe,
-} from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-
-// class CustomLogger extends ConsoleLogger implements LoggerService {
-//   log(message: string) {
-//     if (!message.includes('RouterExplorer')) {
-//       super.log(message);
-//     }
-//   }
-// }
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -33,7 +20,7 @@ async function bootstrap() {
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 
-  // app protection
+  // app protections
   app.enableCors();
   // app.use(csurf());
   // app.use(helmet());
