@@ -1,16 +1,31 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Logger,
+  LoggerService,
+  ValidationPipe,
+} from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as bodyParsers from '@meneprojects/body-parsers';
+import * as bodyParsers from 'body-parser';
+
+// class CustomLogger extends ConsoleLogger implements LoggerService {
+//   log(message: string) {
+//     if (!message.includes('RouterExplorer')) {
+//       super.log(message);
+//     }
+//   }
+// }
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'debug', 'verbose', 'fatal'],
+  });
   const PORT = process.env.PORT || 3000;
 
   app.use(express.json());
@@ -51,7 +66,14 @@ async function bootstrap() {
   // end
 
   await app.listen(PORT, bodyParsers).then(() => {
-    console.log('Application running on PORT: ' + PORT);
+    console.clear();
+    console.log('──────────────────────────────────────────────────────');
+    console.log('\n');
+    console.log(' > Application running on PORT: ' + PORT);
+    console.log(
+      ' > Swagger running on: http://localhost:' + PORT + '/api-docs',
+    );
+    console.log('\n\n');
   });
 }
 

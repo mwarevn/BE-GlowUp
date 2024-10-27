@@ -33,28 +33,30 @@ enum Rank {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  gender        Gender    @default(MALE)
-  role          Roles     @default(CUSTOMER)
-  full_name     String
-  phone_number  String   // @unique
-  password      String?
-  avatar        String?
-  date_of_birth DateTime?
-  address       String?
-  access_token  String?
-  refresh_token String?
-  deleted       Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  profile       Profile?
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  gender           Gender    @default(MALE)
+  role             Roles     @default(CUSTOMER)
+  full_name        String
+  phone_number     String // @unique
+  password         String?
+  avatar           String?
+  date_of_birth    DateTime?
+  address          String?
+  access_token     String?
+  refresh_token    String?
+  deleted          Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  profile          Profile?
   // is_password_set    Boolean @default(false)
+  customerBookings Booking[] @relation("CustomerBooking")
+  stylistBookings  Booking[] @relation("StylistBooking")
 }
 
 type Profile {
   customer CustomerProfile? // Embedded Customer profile
   stylist  StylistProfile? // Embedded Stylist profile
-  // adminProfile    AdminProfile?     // Embedded Admin profile 
+  // adminProfile    AdminProfile?     // Embedded Admin profile
 }
 
 type CustomerProfile {
@@ -74,28 +76,56 @@ model Service {
   price       String
   description String
   picture     String?
+  total_time  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deleted     Boolean  @default(false)
 }
 
 model Combo {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @unique
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String    @unique
   price       String?
   description String
   picture     String?
   services    String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deleted     Boolean  @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deleted     Boolean   @default(false)
+  Booking     Booking[]
 }
 
 model Banner {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String   @unique
-  banner     String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deleted     Boolean  @default(false)
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  banner    String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false)
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+  COMPLETED
+}
+
+model Booking {
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
+  customer_id String
+  stylist_id  String
+  combo_id    String?
+  start_time  String
+  end_time    String
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deleted     Boolean       @default(false)
+
+  customer User   @relation("CustomerBooking", fields: [customer_id], references: [id])
+  stylist  User   @relation("StylistBooking", fields: [stylist_id], references: [id])
+  combo    Combo? @relation(fields: [combo_id], references: [id])
+
+  @@index([combo_id, customer_id, stylist_id, status])
 }

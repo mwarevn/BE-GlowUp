@@ -12,6 +12,7 @@ import { ServiceModule } from './modules/service/service.module';
 import { StylistModule } from './modules/stylist/stylist.module';
 import { CustomerModule } from './modules/customer/customer.module';
 import { BannerModule } from './modules/banner/banner.module';
+import { BookingModule } from './modules/booking/booking.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { BannerModule } from './modules/banner/banner.module';
     StylistModule,
     CustomerModule,
     BannerModule,
+    BookingModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
