@@ -48,16 +48,24 @@ export class PaymentController {
   }
 
   @Post('/create_payment_url')
-  createPaymentUrl(@Body() body: any, @Res() res: Response) {
+  createPaymentUrl(
+    @Body() body: any,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     process.env.TZ = 'Asia/Ho_Chi_Minh';
     const date = new Date();
     const createDate = moment(date).format('YYYYMMDDHHmmss');
-    const ipAddr = '127.0.0.1'; // hoặc lấy từ request
+    let ipAddr =
+      req.headers['x-forwarded-for'] ||
+      req.connection.remoteAddress ||
+      req.socket.remoteAddress ||
+      req.connection.remoteAddress;
 
-    let tmnCode = 'L7ODOMNQ';
-    let secretKey = 'U9FPOHV7YZEF78V43PH8ZBCE8GEWO6D0';
-    let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-    let returnUrl = 'http://localhost:3000/payment/vnpay_return';
+    let tmnCode = process.env.VNP_TMN_CODE;
+    let secretKey = process.env.VNP_HASH_SECRET;
+    let vnpUrl = process.env.VNP_URL;
+    let returnUrl = process.env.VNP_RETURN_URL;
 
     const orderId = moment(date).format('DDHHmmss');
     const amount = body.amount * 100;
@@ -103,8 +111,10 @@ export class PaymentController {
 
     vnp_Params = this.sortObject(vnp_Params);
 
-    let tmnCode = 'L7ODOMNQ';
-    let secretKey = 'U9FPOHV7YZEF78V43PH8ZBCE8GEWO6D0';
+    let tmnCode = process.env.VNP_TMN_CODE;
+    let secretKey = process.env.VNP_HASH_SECRET;
+    let vnpUrl = process.env.VNP_URL;
+    let returnUrl = process.env.VNP_RETURN_URL;
 
     const signData = querystring.stringify(vnp_Params, { encode: false });
     const hmac = crypto.createHmac('sha512', secretKey);
