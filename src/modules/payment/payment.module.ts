@@ -8,8 +8,8 @@ import { ignoreLogger } from 'vnpay';
   imports: [
     VnpayModule,
     VnpayModule.register({
-      tmnCode: 'REVSPUGM',
-      secureSecret: 'vZVDTGN3T8S2KBDUT7OGQCVAYLIDNL34Q',
+      tmnCode: 'L7ODOMNQ',
+      secureSecret: 'U9FPOHV7YZEF78V43PH8ZBCE8GEWO6D0',
       vnpayHost: 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html',
       testMode: true, // tùy chọn, ghi đè vnpayHost thành sandbox nếu là true
 
