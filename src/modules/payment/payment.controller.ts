@@ -20,6 +20,8 @@ import { get } from 'http';
 import * as moment from 'moment';
 import qs from 'qs';
 import * as crypto from 'crypto';
+import { PrismaDB } from '../prisma/prisma.extensions';
+import mongoose from 'mongoose';
 let querystring = require('qs');
 
 @Controller('payment')
@@ -48,58 +50,80 @@ export class PaymentController {
   }
 
   @Post('/create_payment_url')
-  createPaymentUrl(
+  async createPaymentUrl(
     @Body() body: any,
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    process.env.TZ = 'Asia/Ho_Chi_Minh';
-    const date = new Date();
-    const createDate = moment(date).format('YYYYMMDDHHmmss');
-    let ipAddr =
-      req.headers['x-forwarded-for'] ||
-      req.connection.remoteAddress ||
-      req.socket.remoteAddress ||
-      req.connection.remoteAddress;
+    try {
+      process.env.TZ = 'Asia/Ho_Chi_Minh';
+      const date = new Date();
+      const createDate = moment(date).format('YYYYMMDDHHmmss');
+      let ipAddr =
+        req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress ||
+        req.socket.remoteAddress ||
+        req.connection.remoteAddress;
 
-    let tmnCode = process.env.VNP_TMN_CODE;
-    let secretKey = process.env.VNP_HASH_SECRET;
-    let vnpUrl = process.env.VNP_URL;
-    let returnUrl = process.env.VNP_RETURN_URL;
+      let tmnCode = process.env.VNP_TMN_CODE;
+      let secretKey = process.env.VNP_HASH_SECRET;
+      let vnpUrl = process.env.VNP_URL;
+      let returnUrl = process.env.VNP_RETURN_URL;
 
-    const orderId = moment(date).format('DDHHmmss');
-    const amount = body.amount * 100;
-    const bankCode = body.bankCode;
+      const bookingId = body.bookingId;
+      const booking = await PrismaDB.booking.findUnique({
+        where: {
+          id: bookingId,
+        },
+        include: {
+          combo: {
+            select: {
+              price: true,
+            },
+          },
+        },
+      });
+      let bookingPrice = booking.combo.price;
+      if (!booking) {
+        throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
+      }
 
-    let vnp_Params: any = {
-      vnp_Version: '2.1.0',
-      vnp_Command: 'pay',
-      vnp_TmnCode: tmnCode,
-      vnp_Locale: body.language || 'vn',
-      vnp_CurrCode: 'VND',
-      vnp_TxnRef: orderId,
-      vnp_OrderInfo: 'Thanh toan cho ma GD:' + orderId,
-      vnp_OrderType: 'other',
-      vnp_Amount: amount,
-      vnp_ReturnUrl: returnUrl,
-      vnp_IpAddr: ipAddr,
-      vnp_CreateDate: createDate,
-    };
+      const orderId = moment(date).format('DDHHmmss');
+      const amount = +bookingPrice * 100;
+      const bankCode = body.bankCode;
 
-    if (bankCode) {
-      vnp_Params['vnp_BankCode'] = bankCode;
+      let vnp_Params: any = {
+        vnp_Version: '2.1.0',
+        vnp_Command: 'pay',
+        vnp_TmnCode: tmnCode,
+        vnp_Locale: body.language || 'vn',
+        vnp_CurrCode: 'VND',
+        vnp_TxnRef: orderId,
+        vnp_OrderInfo: 'Thanh toan cho ma GD:' + orderId,
+        vnp_OrderType: bookingId,
+        vnp_Amount: amount,
+        vnp_ReturnUrl: returnUrl,
+        vnp_IpAddr: ipAddr,
+        vnp_CreateDate: createDate,
+      };
+
+      if (bankCode) {
+        vnp_Params['vnp_BankCode'] = bankCode;
+      }
+
+      vnp_Params = this.sortObject(vnp_Params);
+
+      let signData = querystring.stringify(vnp_Params, { encode: false });
+      const hmac = crypto.createHmac('sha512', secretKey);
+      const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+      vnp_Params['vnp_SecureHash'] = signed;
+      const paymentUrl =
+        vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
+
+      res.status(200).json({ paymentUrl });
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
-
-    vnp_Params = this.sortObject(vnp_Params);
-
-    let signData = querystring.stringify(vnp_Params, { encode: false });
-    const hmac = crypto.createHmac('sha512', secretKey);
-    const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
-    vnp_Params['vnp_SecureHash'] = signed;
-    const paymentUrl =
-      vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
-
-    res.status(200).json({ paymentUrl });
   }
 
   @Get('/vnpay_return')
