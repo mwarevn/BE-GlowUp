@@ -63,7 +63,8 @@ export class ComboController {
       }
 
       const combo = await this.comboService.create(createComboDto);
-      res.json(combo);
+
+      res.json({ success: true, data: combo });
     } catch (error) {
       if (error.code === 'P2002') {
         throw new HttpException(
@@ -77,24 +78,37 @@ export class ComboController {
 
   @Get()
   async findAll() {
-    const combo = await this.comboService.findAll();
-    return combo;
+    try {
+      const combo = await this.comboService.findAll();
+      return { success: true, data: combo };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
   @Get('filter/:id')
   async findFilter(@Param('id') id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return `not found mongoose Types ObjectId ${id}`;
-    const combo = await this.comboService.findFilter(id);
-    return combo;
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id))
+        return `not found mongoose Types ObjectId ${id}`;
+      const combo = await this.comboService.findFilter(id);
+      return { success: true, data: combo };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Get('search')
-  async search(@Query('q') query: string) {
+  async search(@Query('search') query: string) {
     return this.comboService.search(query);
   }
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.comboService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    try {
+      const combo = await this.comboService.findOne(id);
+      return { success: true, data: combo };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Patch(':id')
@@ -110,8 +124,27 @@ export class ComboController {
         return `not found mongoose Types ObjectId ${id}`;
       const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
       updateComboDto.picture = imgData.data.link;
+      const services = updateComboDto.services
+        .split(',')
+        .filter((id) => id.trim() !== '');
+      for (const service of services) {
+        const serviceId = await PrismaDB.service.findUnique({
+          where: {
+            id: service,
+          },
+          select: {
+            id: true,
+          },
+        });
+        if (!serviceId) {
+          throw new HttpException(
+            `Service id ${service} not found`,
+            HttpStatus.NOT_FOUND,
+          );
+        }
+      }
       const combo = await this.comboService.update(id, updateComboDto);
-      res.json(combo);
+      res.json({ success: true, data: combo });
     } catch (error) {
       throw new HttpException(
         'Internal server error' + error,
@@ -121,9 +154,17 @@ export class ComboController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return `not found mongoose Types ObjectId ${id}`;
-    return this.comboService.remove(id);
+  async remove(@Param('id') id: string) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id))
+        return `not found mongoose Types ObjectId ${id}`;
+      const combo = await this.comboService.remove(id);
+      return { success: true };
+    } catch (error) {
+      throw new HttpException(
+        'Internal server error' + error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
