@@ -7,56 +7,56 @@ import { hashPasswd, selectFileds } from 'src/common/utils';
 
 @Injectable()
 export class StylistService {
-  constructor() {}
+    constructor() {}
 
-  async create(createStylistDto: CreateStylistDto) {
-    const existsStylist = await PrismaDB.user.findFirst({
-      where: {
-        phone_number: createStylistDto.phone_number,
-        role: Roles.STYLIST,
-      },
-    });
+    async create(createStylistDto: CreateStylistDto) {
+        const existsStylist = await PrismaDB.user.findFirst({
+            where: {
+                phone_number: createStylistDto.phone_number,
+                role: Roles.STYLIST,
+            },
+        });
 
-    if (existsStylist) {
-      throw new Error('Số điện thoại này đã được sử dụng!');
+        if (existsStylist) {
+            throw new Error('Số điện thoại này đã được sử dụng!');
+        }
+        return PrismaDB.user.create({
+            data: {
+                ...createStylistDto,
+                role: Roles.STYLIST,
+            },
+            select: selectFileds,
+        });
     }
-    return PrismaDB.user.create({
-      data: {
-        ...createStylistDto,
-        role: Roles.STYLIST,
-      },
-      select: selectFileds,
-    });
-  }
 
-  async findAll() {
-    const stylists = await PrismaDB.user.findMany({
-      where: { role: Roles.STYLIST },
-      select: selectFileds,
-    });
+    async findAll() {
+        const stylists = await PrismaDB.user.findMany({
+            where: { role: Roles.STYLIST },
+            select: selectFileds,
+        });
 
-    return stylists;
-  }
+        return stylists;
+    }
 
-  async findOne(id: string) {
-    const existsStylist = await PrismaDB.user.findUnique({
-      where: { id },
-      select: selectFileds,
-    });
-    return existsStylist;
-  }
+    async findOne(id: string) {
+        const existsStylist = await PrismaDB.user.findUnique({
+            where: { id },
+            select: selectFileds,
+        });
+        return existsStylist;
+    }
 
-  async update(id: string, updateStylistDto: UpdateStylistDto) {
-    return await PrismaDB.user.update({
-      where: { id },
-      data: updateStylistDto,
-      select: selectFileds,
-    });
-  }
+    async update(id: string, updateStylistDto: UpdateStylistDto) {
+        return await PrismaDB.user.update({
+            where: { id },
+            data: updateStylistDto,
+            select: selectFileds,
+        });
+    }
 
-  async remove(id: string) {
-    return PrismaDB.user.delete({
-      where: { id, role: Roles.STYLIST },
-    });
-  }
+    async remove(id: string) {
+        return PrismaDB.user.delete({
+            where: { id, role: Roles.STYLIST },
+        });
+    }
 }

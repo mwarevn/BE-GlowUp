@@ -1,16 +1,16 @@
 {
-  "booking": [
-    {
-      "id": "b128eb2973en930b283r287eby230e",
-      "customerId": "b128eb2973en930b283r287eby230e",
-      "stylistId": "b128eb2973en930b283r287eby230e",
-      "comboId": "b128eb2973en930b283r287eby230e",
-      "startTime": "28-07-2021 10:00",
-      "endTime": "28-07-2021 12:00",
-      "status": "PENDING",
-      "createdAt": "28-07-2021 10:00",
-      "updatedAt": "28-07-2021 10:00",
-      "deleted": false
-    }
-  ]
+    "booking": [
+        {
+            "id": "b128eb2973en930b283r287eby230e",
+            "customerId": "b128eb2973en930b283r287eby230e",
+            "stylistId": "b128eb2973en930b283r287eby230e",
+            "comboId": "b128eb2973en930b283r287eby230e",
+            "startTime": "28-07-2021 10:00",
+            "endTime": "28-07-2021 12:00",
+            "status": "PENDING",
+            "createdAt": "28-07-2021 10:00",
+            "updatedAt": "28-07-2021 10:00",
+            "deleted": false
+        }
+    ]
 }

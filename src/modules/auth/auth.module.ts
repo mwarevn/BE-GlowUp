@@ -7,15 +7,15 @@ import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 
 @Module({
-  controllers: [AuthController],
-  providers: [AuthService, PrismaService],
-  imports: [
-    UserModule,
-    JwtModule.register({
-      global: true,
-    }),
-    PassportModule,
-  ],
-  exports: [AuthService],
+    controllers: [AuthController],
+    providers: [AuthService, PrismaService],
+    imports: [
+        UserModule,
+        JwtModule.register({
+            global: true,
+        }),
+        PassportModule,
+    ],
+    exports: [AuthService],
 })
 export class AuthModule {}

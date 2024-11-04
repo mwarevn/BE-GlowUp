@@ -4,6 +4,6 @@ import { StylistProfileDTO } from 'src/modules/stylist/dto/stylist.profile.dto';
 import { CreateUserDTO } from 'src/modules/user/dto/user.creaete.dto';
 
 export class CreateStylistDto extends CreateUserDTO {
-  @IsOptional()
-  profile: StylistProfileDTO;
+    @IsOptional()
+    profile: StylistProfileDTO;
 }

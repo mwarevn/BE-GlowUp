@@ -8,102 +8,99 @@ import { RegisterAccountDTO } from 'src/modules/auth/dto/register-account.dto';
 import { hashPasswd } from 'src/common/utils';
 
 export interface JWTPayload {
-  id: string;
+    id: string;
 }
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly userService: UserService,
-  ) {}
+    constructor(
+        private readonly jwtService: JwtService,
+        private readonly userService: UserService,
+    ) {}
 
-  async loginSystem(loginDto: LoginDTO, res: Response) {
-    const matchedUser = await this.userService.getUser({
-      phone_number: loginDto.phone_number,
-    });
+    async loginSystem(loginDto: LoginDTO, res: Response) {
+        const matchedUser = await this.userService.getUser({
+            phone_number: loginDto.phone_number,
+        });
 
-    // if phone number not found
-    if (!matchedUser) {
-      return null;
+        // if phone number not found
+        if (!matchedUser) {
+            return null;
+        }
+
+        const isMatch = await this.verifyPassword(loginDto.password, matchedUser.password);
+
+        // if password does not match
+        if (!isMatch) {
+            return null;
+        }
+
+        return matchedUser;
     }
 
-    const isMatch = await this.verifyPassword(
-      loginDto.password,
-      matchedUser.password,
-    );
+    // register new account
+    async registerAccount(registerAccountDTO: RegisterAccountDTO) {
+        const existsUser = await this.userService.getUser({
+            phone_number: registerAccountDTO.phone_number,
+        });
 
-    // if password does not match
-    if (!isMatch) {
-      return null;
+        const hashedPassword = await hashPasswd(registerAccountDTO.password);
+
+        if (existsUser && !existsUser.password) {
+            return await this.userService.updateProfile(
+                { id: existsUser.id },
+                {
+                    ...registerAccountDTO,
+                    password: hashedPassword,
+                },
+            );
+        }
+
+        if (existsUser) {
+            throw new Error('Số điện thoại này đã được sử dụng!');
+        }
+
+        return await this.userService.createUser({
+            ...registerAccountDTO,
+            password: hashedPassword,
+        });
     }
 
-    return matchedUser;
-  }
+    // async logout(id: string) {
+    //   return await PrismaDB.user.update({
+    //     where: { id },
+    //     data: {
+    //       access_token: null,
+    //       refresh_token: null,
+    //     },
+    //   });
+    // }
 
-  // register new account
-  async registerAccount(registerAccountDTO: RegisterAccountDTO) {
-    const existsUser = await this.userService.getUser({
-      phone_number: registerAccountDTO.phone_number,
-    });
+    // async storeToken(where: any, access_token: string, refresh_token: string) {
+    //   return await PrismaDB.user.update({
+    //     where,
+    //     data: {
+    //       access_token,
+    //       refresh_token,
+    //     },
+    //   });
+    // }
 
-    const hashedPassword = await hashPasswd(registerAccountDTO.password);
-
-    if (existsUser && !existsUser.password) {
-      return await this.userService.updateProfile(
-        { id: existsUser.id },
-        {
-          ...registerAccountDTO,
-          password: hashedPassword,
-        },
-      );
+    async verifyPassword(password: string, hash: string): Promise<boolean> {
+        return await bcrypt.compare(password, hash);
     }
 
-    if (existsUser) {
-      throw new Error('Số điện thoại này đã được sử dụng!');
+    async generateAccessToken(payload: any) {
+        return await this.jwtService.signAsync(payload, {
+            secret: process.env.JWT_ACCESS_SECRET,
+            expiresIn: '8m',
+        });
     }
 
-    return await this.userService.createUser({
-      ...registerAccountDTO,
-      password: hashedPassword,
-    });
-  }
-
-  // async logout(id: string) {
-  //   return await PrismaDB.user.update({
-  //     where: { id },
-  //     data: {
-  //       access_token: null,
-  //       refresh_token: null,
-  //     },
-  //   });
-  // }
-
-  // async storeToken(where: any, access_token: string, refresh_token: string) {
-  //   return await PrismaDB.user.update({
-  //     where,
-  //     data: {
-  //       access_token,
-  //       refresh_token,
-  //     },
-  //   });
-  // }
-
-  async verifyPassword(password: string, hash: string): Promise<boolean> {
-    return await bcrypt.compare(password, hash);
-  }
-
-  async generateAccessToken(payload: any) {
-    return await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '8m',
-    });
-  }
-
-  async generateRefreshToken(payload: any) {
-    return await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: '8d',
-    });
-  }
+    async generateRefreshToken(payload: any) {
+        return await this.jwtService.signAsync(payload, {
+            secret: process.env.JWT_REFRESH_SECRET,
+            expiresIn: '8d',
+        });
+    }
 }

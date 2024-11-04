@@ -6,7 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from '../upload/upload.service';
 
 @Module({
-  controllers: [ComboController],
-  providers: [ComboService, PrismaService, UploadService],
+    controllers: [ComboController],
+    providers: [ComboService, PrismaService, UploadService],
 })
 export class ComboModule {}

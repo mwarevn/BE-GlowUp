@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UploadService } from '../upload/upload.service';
 
 @Module({
-  controllers: [BannerController],
-  providers: [BannerService, PrismaService, UploadService],
+    controllers: [BannerController],
+    providers: [BannerService, PrismaService, UploadService],
 })
 export class BannerModule {}

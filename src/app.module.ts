@@ -18,22 +18,22 @@ import { VnpayModule } from 'nestjs-vnpay';
 import { ignoreLogger } from 'vnpay';
 
 @Module({
-  imports: [
-    AuthModule,
-    ConfigModule.forRoot({ isGlobal: true }),
-    UserModule,
-    UploadModule,
-    PrismaModule,
-    ComboModule,
-    ServiceModule,
-    StylistModule,
-    CustomerModule,
-    BannerModule,
-    BookingModule,
-    VnpayModule,
-    PaymentModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService, PrismaService],
+    imports: [
+        AuthModule,
+        ConfigModule.forRoot({ isGlobal: true }),
+        UserModule,
+        UploadModule,
+        PrismaModule,
+        ComboModule,
+        ServiceModule,
+        StylistModule,
+        CustomerModule,
+        BannerModule,
+        BookingModule,
+        VnpayModule,
+        PaymentModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService, PrismaService],
 })
 export class AppModule {}

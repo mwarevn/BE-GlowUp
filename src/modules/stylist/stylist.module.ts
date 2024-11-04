@@ -6,8 +6,8 @@ import { UserModule } from 'src/modules/user/user.module';
 import { UploadModule } from 'src/modules/upload/upload.module';
 
 @Module({
-  controllers: [StylistController],
-  providers: [StylistService],
-  imports: [UserModule, UploadModule],
+    controllers: [StylistController],
+    providers: [StylistService],
+    imports: [UserModule, UploadModule],
 })
 export class StylistModule {}
