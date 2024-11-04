@@ -39,7 +39,7 @@ export class ServiceController {
       // const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
       // createServiceDto.picture = imgData.data.link;
       const service = await this.serviceService.create(createServiceDto);
-      res.json(service);
+      res.json({ success: true, data: service });
     } catch (error) {
       if (error.code === 'P2002') {
         throw new HttpException(
@@ -54,17 +54,19 @@ export class ServiceController {
   @Get()
   async findAll() {
     try {
-      return await this.serviceService.findAll();
+      const service = await this.serviceService.findAll();
+      return { success: true, data: service };
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return `not found mongoose Types ObjectId ${id}`;
-    return this.serviceService.findOne(id);
+    const service = await this.serviceService.findOne(id);
+    return { success: true, data: service };
   }
   @Patch(':id')
   async update(
@@ -80,7 +82,7 @@ export class ServiceController {
       const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
       updateServiceDto.picture = imgData.data.link;
       const service = await this.serviceService.update(id, updateServiceDto);
-      res.json(service);
+      res.json({ success: true, data: service });
     } catch (error) {
       console.log(error);
       throw new HttpException(
@@ -91,9 +93,10 @@ export class ServiceController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return `not found mongoose Types ObjectId ${id}`;
-    return this.serviceService.remove(id);
+    const service = await this.serviceService.remove(id);
+    return { success: true };
   }
 }
