@@ -7,7 +7,6 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import { formatDate } from 'src/common/utils';
 import * as bodyParsers from 'body-parsers';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
