@@ -7,7 +7,7 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import { formatDate } from 'src/common/utils';
+import { bodyParsers, formatDate } from 'src/common/utils';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -52,7 +52,7 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, document);
   // end
 
-  await app.listen(PORT).then(() => {
+  await app.listen(PORT, bodyParsers).then(() => {
     console.clear();
     console.log('──────────────────────────────────────────────────────');
     console.log('\n');
