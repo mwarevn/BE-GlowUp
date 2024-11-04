@@ -113,11 +113,11 @@ enum BookingStatus {
 
 model Booking {
   id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  customer_id String
-  stylist_id  String
-  combo_id    String?
-  start_time  String
-  end_time    String
+  customer_id String        @db.ObjectId
+  stylist_id  String        @db.ObjectId
+  combo_id    String?       @db.ObjectId
+  start_time  DateTime
+  end_time    DateTime
   status      BookingStatus @default(PENDING)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt

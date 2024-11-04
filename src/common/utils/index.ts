@@ -63,10 +63,14 @@ export const uploadSingleImageThirdParty = async (req: Request) => {
 };
 
 export const formatDate = (dateTime: Date) => {
-  const hours = String(dateTime.getHours()).padStart(2, '0');
-  const minutes = String(dateTime.getMinutes()).padStart(2, '0');
-  const day = String(dateTime.getDate()).padStart(2, '0');
-  const month = String(dateTime.getMonth() + 1).padStart(2, '0'); // Months are 0-based
-  const year = dateTime.getFullYear();
-  return `${hours}:${minutes} - ${day}/${month}/${year}`;
+  try {
+    const hours = String(dateTime.getHours()).padStart(2, '0');
+    const minutes = String(dateTime.getMinutes()).padStart(2, '0');
+    const day = String(dateTime.getDate()).padStart(2, '0');
+    const month = String(dateTime.getMonth() + 1).padStart(2, '0');
+    const year = dateTime.getFullYear();
+    return `${hours}:${minutes} - ${day}/${month}/${year}`;
+  } catch (error) {
+    return null;
+  }
 };

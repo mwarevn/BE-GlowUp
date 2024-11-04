@@ -12,6 +12,7 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
+import { formatDate } from 'src/common/utils';
 
 // class CustomLogger extends ConsoleLogger implements LoggerService {
 //   log(message: string) {
@@ -73,6 +74,7 @@ async function bootstrap() {
       ' > Swagger running on: http://localhost:' + PORT + '/api-docs',
     );
     console.log('\n\n');
+    console.log(new Date());
   });
 }
 
