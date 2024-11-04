@@ -70,7 +70,8 @@ export class BannerController {
   @Get()
   async findAll() {
     try {
-      return await this.bannerService.findAll();
+      const banner = await this.bannerService.findAll();
+      return { success: true, data: banner };
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -81,8 +82,8 @@ export class BannerController {
     try {
       if (!mongoose.Types.ObjectId.isValid(id))
         return `not found user with id ${id}`;
-
-      return await this.bannerService.findOne(id);
+      const banner = await this.bannerService.findOne(id);
+      return { success: true, data: banner };
     } catch (error) {
       throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -132,6 +133,7 @@ export class BannerController {
   async remove(@Param('id') id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
       return `not found user with id ${id}`;
-    return await this.bannerService.remove(id);
+    const banner = await this.bannerService.remove(id);
+    return { success: true };
   }
 }

@@ -85,7 +85,6 @@ model Service {
 model Combo {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String    @unique
-  price       String?
   description String
   picture     String?
   services    String[]
