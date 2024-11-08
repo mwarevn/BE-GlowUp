@@ -51,7 +51,7 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
     // end
 
-    await app.listen(PORT).then(() => {
+    await app.listen(PORT, bodyParsers).then(() => {
         console.clear();
         console.log('──────────────────────────────────────────────────────');
         console.log('\n');
