@@ -74,3 +74,20 @@ export const formatDate = (dateTime: Date) => {
         return null;
     }
 };
+
+export function isDateInRange(dateString) {
+    const date = new Date(dateString);
+
+    // Kiểm tra ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
+    const dayOfWeek = date.getUTCDay();
+    if (dayOfWeek < 1 || dayOfWeek > 6) {
+        return false; // Không phải thứ Hai đến thứ 7
+    }
+
+    // Kiểm tra giờ
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const isInTimeRange = (hours > 8 || (hours === 8 && minutes >= 0)) && (hours < 20 || (hours === 20 && minutes <= 30));
+
+    return isInTimeRange;
+}
