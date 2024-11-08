@@ -1,54 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
-import { formatDate, selectFileds } from 'src/common/utils';
+import { formatDate, isDateInRange, selectFileds } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, Roles } from '@prisma/client';
+import { addBookingQueue } from 'src/queues/booking-queue';
 
 @Injectable()
 export class BookingService {
     /**
      * Coditions:
      * - Phải login (customer, stylist)
-     * - Phải nằm trong giờ làm việc - T2 > T6. ca sáng 8h - 11h30 ca chiều 13h - 16h50
+     * - Phải nằm trong giờ làm việc - T2 > T7. sáng bắt đầu từ 8h , chiều tan làm lúc 20h30
      * - Stylist phải working
      * - Phải nằm trong thời gian stylist rảnh và thời gian stylist rảnh phải đủ để làm combo
      * - Customer không thể order 2 lần trong cùng 1 khoảng thời gian.
      */
     async create(createBookingDto: CreateBookingDto) {
-        const newEndTime = new Date(createBookingDto.end_time as string) as unknown as string;
-        const newStartTime = new Date(createBookingDto.start_time as string) as unknown as string;
+        const newEndTime = new Date(createBookingDto.end_time as any);
+        const newStartTime = new Date(createBookingDto.start_time as any);
 
-        const conflictingBookings = await PrismaDB.booking.findMany({
-            where: {
-                stylist_id: createBookingDto.stylist_id as any,
-                status: BookingStatus.PENDING || BookingStatus.CONFIRMED,
-                AND: [{ start_time: { lt: newEndTime } }, { end_time: { gt: newStartTime } }],
-            },
-        });
-
-        if (conflictingBookings.length > 0) {
-            throw new Error('Khung giờ này đã có booking khác, vui lòng chọn thời gian khác.');
+        if (newEndTime <= newStartTime) {
+            throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        // const payload = {
-        //   start_time: '16:00 - 26/10/2024',
-        //   end_time: '17:00 - 26/10/2024',
-        //   combo_id: '671c91cf1fd1b4e152adfdde',
-        //   customer_id: '671c6145dbb73ad05c0c2953',
-        //   stylist_id: '671c9139086e066034740ce5',
-        // };
+        if (!isDateInRange(newStartTime)) {
+            throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+        }
 
-        // try {
-        //   const newBooking = await PrismaDB.booking.create({
-        //     data: payload,
-        //   });
+        const stylist = await PrismaDB.user.findUnique({
+            where: {
+                id: createBookingDto.stylist_id as any,
+                role: Roles.STYLIST,
+            },
+            select: { profile: true },
+        });
 
-        //   return newBooking;
-        // } catch (error) {
-        //   console.log(error);
-        //   return null;
-        // }
+        if (!stylist?.profile?.stylist?.isWorking) {
+            throw new Error('Stylist này không còn làm việc!.');
+        }
+
+        const job = await addBookingQueue(createBookingDto);
+        const result = await job.finished();
+
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+
+        return result;
     }
 
     findAll() {

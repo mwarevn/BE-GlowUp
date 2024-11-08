@@ -9,7 +9,11 @@ export class BookingController {
 
     @Post()
     async create(@Body() createBookingDto: CreateBookingDto) {
-        return await this.bookingService.create(createBookingDto);
+        try {
+            return await this.bookingService.create(createBookingDto);
+        } catch (error) {
+            return { error: error.message };
+        }
     }
 
     @Get()
