@@ -35,8 +35,8 @@ export class BookingService {
             },
             select: { profile: true },
         });
-
-        if (!stylist?.profile?.stylist?.isWorking) {
+        console.log(stylist);
+        if (!stylist && !stylist?.profile.stylist.isWorking) {
             throw new Error('Stylist này không còn làm việc!.');
         }
 
@@ -63,6 +63,10 @@ export class BookingService {
                 combo: {
                     select: {
                         services: true,
+                        id: true,
+                        name: true,
+                        description: true,
+                        picture: true,
                     },
                 },
                 customer: {
@@ -73,7 +77,33 @@ export class BookingService {
                 },
             },
         });
-        return validBooking;
+
+        const services = [];
+        if (validBooking && validBooking.combo.services && validBooking.combo.services.length > 0) {
+            services.push(
+                ...(await PrismaDB.service.findMany({
+                    where: {
+                        id: {
+                            in: validBooking.combo.services,
+                        },
+                    },
+                })),
+            );
+        }
+
+        delete validBooking.customer_id;
+        delete validBooking.stylist_id;
+        delete validBooking.combo_id;
+
+        return {
+            ...validBooking,
+            combo: {
+                ...validBooking.combo,
+                services,
+            },
+            total_time: services.reduce((sum, service) => sum + parseFloat(service.total_time) || 0, 0),
+            total_price: services.reduce((sum, service) => sum + parseFloat(service.price) || 0, 0),
+        };
     }
 
     update(id: number, updateBookingDto: UpdateBookingDto) {

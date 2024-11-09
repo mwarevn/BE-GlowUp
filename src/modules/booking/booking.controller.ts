@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { BookingQuery } from 'src/modules/booking/constant';
 
 @Controller('booking')
 export class BookingController {
@@ -17,7 +18,15 @@ export class BookingController {
     }
 
     @Get()
-    findAll() {
+    findAll(@Query() query: any) {
+        const serchQuery = Object.keys(query)[0];
+
+        if (serchQuery in BookingQuery) {
+            console.log('first');
+        } else {
+            console.log('second');
+        }
+
         return this.bookingService.findAll();
     }
 

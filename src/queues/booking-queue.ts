@@ -3,16 +3,16 @@ import * as Queue from 'bull';
 import { CreateBookingDto } from 'src/modules/booking/dto/create-booking.dto';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
-export const bookingQueue = new Queue('booking-queue', {
+const bookingQueue = new Queue('booking-queue', {
     redis: {
         host: 'localhost',
         port: 6379,
     },
 });
 
-bookingQueue.process(3, async (job: any) => {
+bookingQueue.process(1, async (job: any) => {
     const payload: CreateBookingDto = job.data;
-
+    //
     const newEndTime = new Date(payload.end_time as any);
     const newStartTime = new Date(payload.start_time as any);
 
