@@ -30,10 +30,11 @@ export class ComboService {
     }
 
     async findAll() {
+        // Lấy tất cả các combo từ database
         const combos = await PrismaDB.combo.findMany();
 
-        const comboWithPrice = [];
         for (const combo of combos) {
+            // Lấy danh sách các dịch vụ có trong combo dựa trên `combo.services`
             const servicePrices = await PrismaDB.service.findMany({
                 where: {
                     id: {
@@ -42,15 +43,17 @@ export class ComboService {
                 },
             });
 
+            // Tính tổng giá các dịch vụ trong combo
             const price = servicePrices.reduce((acc, service) => acc + parseFloat(service.price), 0);
 
-            comboWithPrice.push({
-                ...combo,
-                price,
+            // Cập nhật giá combo vào cơ sở dữ liệu
+            await PrismaDB.combo.update({
+                where: { id: combo.id },
+                data: { price: price + '' }, // Gán giá trị của price một cách rõ ràng
             });
         }
 
-        return comboWithPrice;
+        return await PrismaDB.combo.findMany(); // Trả về danh sách combo đã được cập nhật giá
     }
 
     async findFilter(id: string) {
