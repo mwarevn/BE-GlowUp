@@ -64,12 +64,14 @@ export class PaymentController {
                     },
                 },
             });
+
             let bookingPrice = booking.combo.price;
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
             }
             const orderId = moment(date).format('DDHHmmss');
-            const amount = +bookingPrice * 100;
+            const amount = parseFloat(bookingPrice) * 100;
+            console.log(amount);
             const bankCode = body.bankCode;
             let vnp_Params: any = {
                 vnp_Version: '2.1.0',
