@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
@@ -18,16 +18,16 @@ export class BookingController {
     }
 
     @Get()
-    findAll(@Query() query: any) {
-        const serchQuery = Object.keys(query)[0];
+    async findAll(@Query() query: any) {
+        const searchQuery = Object.keys(query)[0];
 
-        if (serchQuery in BookingQuery) {
-            console.log('first');
-        } else {
-            console.log('second');
+        if (!Object.values(BookingQuery).includes(searchQuery as BookingQuery) && Object.keys(query).length > 0) {
+            throw new BadRequestException('Invalid query');
         }
 
-        return this.bookingService.findAll();
+        const bookings = await this.bookingService.findAll(searchQuery, query[searchQuery]);
+
+        return bookings || [];
     }
 
     @Get(':id')

@@ -5,6 +5,36 @@ import { formatDate, isDateInRange, selectFileds } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { BookingStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/booking-queue';
+import { BookingQuery } from 'src/modules/booking/constant';
+
+const populateBookingData = async (validBooking) => {
+    const services = [];
+    if (validBooking && validBooking.combo.services && validBooking.combo.services.length > 0) {
+        services.push(
+            ...(await PrismaDB.service.findMany({
+                where: {
+                    id: {
+                        in: validBooking.combo.services,
+                    },
+                },
+            })),
+        );
+    }
+
+    delete validBooking.customer_id;
+    delete validBooking.stylist_id;
+    delete validBooking.combo_id;
+
+    return {
+        ...validBooking,
+        combo: {
+            ...validBooking.combo,
+            services,
+        },
+        total_time: services.reduce((sum, service) => sum + parseFloat(service.total_time) || 0, 0),
+        total_price: services.reduce((sum, service) => sum + parseFloat(service.price) || 0, 0),
+    };
+};
 
 @Injectable()
 export class BookingService {
@@ -50,8 +80,102 @@ export class BookingService {
         return result;
     }
 
-    findAll() {
-        return `This action returns all booking`;
+    async findAll(key, value) {
+        const coditions = [];
+        switch (key) {
+            case BookingQuery.phone_number:
+                coditions.push({
+                    customer: {
+                        phone_number: value,
+                    },
+                });
+                break;
+            case BookingQuery.user_id:
+                coditions.push({
+                    customer: {
+                        id: value,
+                    },
+                });
+                break;
+            case BookingQuery.stylist_id:
+                coditions.push({
+                    stylist: {
+                        id: value,
+                    },
+                });
+                break;
+            case BookingQuery.status:
+                coditions.push({
+                    status: value,
+                });
+                break;
+            case BookingQuery.combo_id:
+                coditions.push({
+                    combo_id: value,
+                });
+
+                break;
+            case BookingQuery.combo_name:
+                coditions.push({
+                    combo: {
+                        name: value,
+                    },
+                });
+                break;
+            case BookingQuery.combo_name:
+                coditions.push({
+                    combo: {
+                        name: value,
+                    },
+                });
+                break;
+            case BookingQuery.service_id:
+                coditions.push({
+                    combo: {
+                        services: {
+                            has: value,
+                        },
+                    },
+                });
+
+                break;
+            case BookingQuery.service_name:
+                coditions.push({
+                    combo: {
+                        services: {
+                            has: value,
+                        },
+                    },
+                });
+                break;
+            default:
+                break;
+        }
+
+        const booking = await PrismaDB.booking.findMany({
+            where: {
+                AND: coditions,
+            },
+            include: {
+                combo: {
+                    select: {
+                        services: true,
+                        id: true,
+                        name: true,
+                        description: true,
+                        picture: true,
+                    },
+                },
+                customer: {
+                    select: selectFileds,
+                },
+                stylist: {
+                    select: selectFileds,
+                },
+            },
+        });
+
+        return await Promise.all(booking.map(async (item) => await populateBookingData(item)));
     }
 
     async findOne(id: string) {
@@ -78,32 +202,34 @@ export class BookingService {
             },
         });
 
-        const services = [];
-        if (validBooking && validBooking.combo.services && validBooking.combo.services.length > 0) {
-            services.push(
-                ...(await PrismaDB.service.findMany({
-                    where: {
-                        id: {
-                            in: validBooking.combo.services,
-                        },
-                    },
-                })),
-            );
-        }
+        // const services = [];
+        // if (validBooking && validBooking.combo.services && validBooking.combo.services.length > 0) {
+        //     services.push(
+        //         ...(await PrismaDB.service.findMany({
+        //             where: {
+        //                 id: {
+        //                     in: validBooking.combo.services,
+        //                 },
+        //             },
+        //         })),
+        //     );
+        // }
 
-        delete validBooking.customer_id;
-        delete validBooking.stylist_id;
-        delete validBooking.combo_id;
+        // delete validBooking.customer_id;
+        // delete validBooking.stylist_id;
+        // delete validBooking.combo_id;
 
-        return {
-            ...validBooking,
-            combo: {
-                ...validBooking.combo,
-                services,
-            },
-            total_time: services.reduce((sum, service) => sum + parseFloat(service.total_time) || 0, 0),
-            total_price: services.reduce((sum, service) => sum + parseFloat(service.price) || 0, 0),
-        };
+        // return {
+        //     ...validBooking,
+        //     combo: {
+        //         ...validBooking.combo,
+        //         services,
+        //     },
+        //     total_time: services.reduce((sum, service) => sum + parseFloat(service.total_time) || 0, 0),
+        //     total_price: services.reduce((sum, service) => sum + parseFloat(service.price) || 0, 0),
+        // };
+
+        return await populateBookingData(validBooking);
     }
 
     update(id: number, updateBookingDto: UpdateBookingDto) {
