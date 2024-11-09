@@ -86,6 +86,7 @@ model Combo {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String    @unique
   description String
+  price       String?
   picture     String?
   services    String[]
   createdAt   DateTime  @default(now())
