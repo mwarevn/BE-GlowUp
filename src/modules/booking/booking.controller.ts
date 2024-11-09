@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
+import { BookingQuery } from 'src/modules/booking/constant';
 
 @Controller('booking')
 export class BookingController {
@@ -17,8 +18,16 @@ export class BookingController {
     }
 
     @Get()
-    findAll() {
-        return this.bookingService.findAll();
+    async findAll(@Query() query: any) {
+        const searchQuery = Object.keys(query)[0];
+
+        if (!Object.values(BookingQuery).includes(searchQuery as BookingQuery) && Object.keys(query).length > 0) {
+            throw new BadRequestException('Invalid query');
+        }
+
+        const bookings = await this.bookingService.findAll(searchQuery, query[searchQuery]);
+
+        return bookings || [];
     }
 
     @Get(':id')
@@ -27,12 +36,21 @@ export class BookingController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
-        return this.bookingService.update(+id, updateBookingDto);
+    async update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
+        try {
+            return await this.bookingService.update(id, updateBookingDto);
+        } catch (error) {
+            return { error: error.message };
+        }
     }
 
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.bookingService.remove(+id);
+    async remove(@Param('id') id: string) {
+        try {
+            const deleted = await this.bookingService.remove(id);
+            return { success: deleted.deleted };
+        } catch (error) {
+            return { error: error.message };
+        }
     }
 }
