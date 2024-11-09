@@ -65,12 +65,12 @@ export class BookingService {
             },
             select: { profile: true },
         });
-        console.log(stylist);
-        if (!stylist && !stylist?.profile.stylist.isWorking) {
+
+        if (stylist == null || !stylist.profile || stylist.profile.stylist.isWorking === false) {
             throw new Error('Stylist này không còn làm việc!.');
         }
 
-        const job = await addBookingQueue(createBookingDto);
+        const job = await addBookingQueue(createBookingDto, 'create');
         const result = await job.finished();
 
         if (!result.success) {
@@ -232,11 +232,45 @@ export class BookingService {
         return await populateBookingData(validBooking);
     }
 
-    update(id: number, updateBookingDto: UpdateBookingDto) {
-        return `This action updates a #${id} booking`;
+    async update(id: string, updateBookingDto: UpdateBookingDto) {
+        const newEndTime = new Date(updateBookingDto.end_time as any);
+        const newStartTime = new Date(updateBookingDto.start_time as any);
+
+        if (newEndTime <= newStartTime) {
+            throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
+        }
+
+        if (!isDateInRange(newStartTime)) {
+            throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+        }
+
+        const stylist = await PrismaDB.user.findUnique({
+            where: {
+                id: updateBookingDto.stylist_id as any,
+                role: Roles.STYLIST,
+            },
+            select: { profile: true },
+        });
+
+        if (stylist == null || !stylist.profile || stylist.profile.stylist.isWorking === false) {
+            throw new Error('Stylist này không còn làm việc!.');
+        }
+
+        const job = await addBookingQueue({ ...updateBookingDto, id }, 'update');
+        const result = await job.finished();
+
+        if (!result.success) {
+            throw new Error(result.message);
+        }
+
+        return result;
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} booking`;
+    async remove(id: string) {
+        return await PrismaDB.booking.delete({
+            where: {
+                id,
+            },
+        });
     }
 }

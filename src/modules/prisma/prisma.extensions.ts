@@ -10,6 +10,7 @@ export const PrismaDB = prisma.$extends(
             Service: true,
             Combo: true,
             Banner: true,
+            Booking: true,
         },
     }),
 );
