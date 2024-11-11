@@ -40,8 +40,12 @@ export class ComboController {
         @Res() res: Response,
     ) {
         try {
-            const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-            createComboDto.picture = imgData.data.link;
+            if (!createComboDto.picture) {
+                createComboDto.picture = 'https://placehold.co/600x400';
+            } else {
+                const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+                createComboDto.picture = imgData.data.link;
+            }
             const services = createComboDto.services.split(',').filter((id) => id.trim() !== '');
             for (const service of services) {
                 const serviceId = await PrismaDB.service.findUnique({
