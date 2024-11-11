@@ -93,6 +93,7 @@ model Combo {
   updatedAt   DateTime  @updatedAt
   deleted     Boolean   @default(false)
   Booking     Booking[]
+  point       Int?       @default(0)
 }
 
 model Banner {
