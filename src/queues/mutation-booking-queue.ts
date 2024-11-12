@@ -4,8 +4,8 @@ import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
 const bookingQueue = new Queue('booking-queue', {
     redis: {
-        host: 'localhost',
-        port: 6379,
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT),
     },
 });
 
