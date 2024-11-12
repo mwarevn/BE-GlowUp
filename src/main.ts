@@ -61,7 +61,7 @@ async function bootstrap() {
         console.clear();
         console.log('────────────────────────────────────────────────────────────────────────────────');
         console.log('\n');
-        console.log('[!] Make sure you have started the redis server (localhost and port: 6379)!');
+        console.log(`[!] Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
         console.log('\n');
         console.log(' > Application running on PORT: ' + PORT);
         console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
