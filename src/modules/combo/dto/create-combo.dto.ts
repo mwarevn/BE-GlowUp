@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsDefined, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsDefined, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import mongoose from 'mongoose';
 
 export class CreateComboDto {
@@ -9,13 +9,16 @@ export class CreateComboDto {
     @ApiProperty({ example: 'gói tráng ấp pha trè cực thích' })
     name: string;
 
-    @IsOptional()
     @IsString()
     @IsOptional()
     @ApiProperty({ example: '100', description: 'Optional' })
     price?: string;
 
+    @IsOptional()
     picture?: string;
+
+    @IsOptional()
+    point?: string;
 
     @IsString()
     @IsNotEmpty()

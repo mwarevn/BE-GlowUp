@@ -77,8 +77,13 @@ export class ServiceController {
     ) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
-            const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-            updateServiceDto.picture = imgData.data.link;
+
+            if (!updateServiceDto.picture) {
+                updateServiceDto.picture = 'https://placehold.co/600x400';
+            } else {
+                const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+                updateServiceDto.picture = imgData.data.link;
+            }
             const service = await this.serviceService.update(id, updateServiceDto);
             res.json({ success: true, data: service });
         } catch (error) {

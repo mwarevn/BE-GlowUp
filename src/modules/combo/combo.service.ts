@@ -22,6 +22,7 @@ export class ComboService {
         const combo = await this.prismaService.combo.create({
             data: {
                 ...data,
+                point: parseInt(createComboDto.point),
                 services: Array.from(set) as string[],
             },
         });
@@ -101,6 +102,7 @@ export class ComboService {
             },
             data: {
                 ...data,
+                point: parseInt(updateComboDto.point),
                 services: Array.from(set) as string[],
             },
         });
