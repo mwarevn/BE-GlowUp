@@ -80,3 +80,11 @@ export function notifyUser(userId: string, notification: any) {
         console.error('SocketGateway is not initialized.');
     }
 }
+
+export function broadcastNotification(notification: any) {
+    if (socketGateway) {
+        socketGateway.broadcastNotification(notification);
+    } else {
+        console.error('SocketGateway is not initialized.');
+    }
+}
