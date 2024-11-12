@@ -8,10 +8,12 @@ import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as bodyParsers from 'body-parser/body-parsers';
+
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
         logger: ['error', 'warn', 'debug', 'verbose', 'fatal'],
     });
+
     const PORT = process.env.PORT || 3000;
 
     app.use(express.json());
