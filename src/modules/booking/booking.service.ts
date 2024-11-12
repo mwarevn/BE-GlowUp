@@ -4,7 +4,7 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { formatDate, isDateInRange, selectFileds } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { BookingStatus, Roles } from '@prisma/client';
-import { addBookingQueue } from 'src/queues/booking-queue';
+import { addBookingQueue } from 'src/queues/mutation-booking-queue';
 import { BookingQuery } from 'src/modules/booking/constant';
 
 const populateBookingData = async (validBooking) => {
@@ -54,9 +54,9 @@ export class BookingService {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        if (!isDateInRange(newStartTime)) {
-            throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
-        }
+        // if (!isDateInRange(newStartTime)) {
+        //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+        // } //
 
         const stylist = await PrismaDB.user.findUnique({
             where: {

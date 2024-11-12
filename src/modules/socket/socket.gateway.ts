@@ -37,7 +37,7 @@ export class SocketGateway {
     // send notification to user
     sendNotificationToUser(userId: string, notification: any) {
         const socketId = this.users.get(userId);
-
+        console.log('socketId: ' + socketId);
         if (socketId) {
             this.server.to(socketId).emit('notification', notification);
         }

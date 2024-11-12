@@ -8,6 +8,9 @@ import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as bodyParsers from 'body-parser/body-parsers';
+import './workers/check-booking.worker';
+import { SocketGateway } from 'src/modules/socket/socket.gateway';
+let socketGateway: SocketGateway;
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -16,15 +19,16 @@ async function bootstrap() {
 
     const PORT = process.env.PORT || 3000;
 
+    socketGateway = app.get(SocketGateway);
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
 
     app.useStaticAssets(join(__dirname, '..', 'public'));
-
     // app protections
     app.enableCors();
-    // app.use(csurf());
+    // app.use(csurf()); //
     // app.use(helmet());
 
     // validation data
@@ -62,7 +66,17 @@ async function bootstrap() {
         console.log(' > Application running on PORT: ' + PORT);
         console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
         console.log('\n\n');
+        console.log(new Date()); //
     });
 }
 
 bootstrap();
+
+// noti
+export function notifyUser(userId: string, notification: any) {
+    if (socketGateway) {
+        socketGateway.sendNotificationToUser(userId, notification);
+    } else {
+        console.error('SocketGateway is not initialized.');
+    }
+}
