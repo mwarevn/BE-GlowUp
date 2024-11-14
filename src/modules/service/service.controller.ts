@@ -36,8 +36,12 @@ export class ServiceController {
         @Res() res: Response,
     ) {
         try {
-            // const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-            // createServiceDto.picture = imgData.data.link;
+            if (file) {
+                const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+                createServiceDto.picture = imgData.data.link;
+            } else {
+                createServiceDto.picture = 'https://placehold.co/600x400';
+            }
             const service = await this.serviceService.create(createServiceDto);
             res.json({ success: true, data: service });
         } catch (error) {
@@ -75,10 +79,14 @@ export class ServiceController {
         @Req() req: Request,
         @Res() res: Response,
     ) {
+        console.log(updateServiceDto.picture);
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
-            const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-            updateServiceDto.picture = imgData.data.link;
+
+            if (file) {
+                const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+                updateServiceDto.picture = imgData.data.link;
+            }
             const service = await this.serviceService.update(id, updateServiceDto);
             res.json({ success: true, data: service });
         } catch (error) {

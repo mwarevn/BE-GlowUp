@@ -38,6 +38,7 @@ export class PaymentController {
 
     @Post('/create_payment_url')
     async createPaymentUrl(@Body() body: any, @Req() req: Request, @Res() res: Response) {
+        console.log(body);
         try {
             process.env.TZ = 'Asia/Ho_Chi_Minh';
             const date = new Date();
@@ -56,7 +57,7 @@ export class PaymentController {
                 where: {
                     id: bookingId,
                 },
-                include: {
+                select: {
                     combo: {
                         select: {
                             price: true,
@@ -64,12 +65,15 @@ export class PaymentController {
                     },
                 },
             });
+
             let bookingPrice = booking.combo.price;
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
             }
+
             const orderId = moment(date).format('DDHHmmss');
-            const amount = +bookingPrice * 100;
+            const amount = parseFloat(bookingPrice) * 100;
+            console.log(amount);
             const bankCode = body.bankCode;
             let vnp_Params: any = {
                 vnp_Version: '2.1.0',

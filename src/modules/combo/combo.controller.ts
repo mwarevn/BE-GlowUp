@@ -40,8 +40,12 @@ export class ComboController {
         @Res() res: Response,
     ) {
         try {
-            const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-            createComboDto.picture = imgData.data.link;
+            if (file) {
+                const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+                createComboDto.picture = imgData.data.link;
+            } else {
+                createComboDto.picture = 'https://placehold.co/600x400';
+            }
             const services = createComboDto.services.split(',').filter((id) => id.trim() !== '');
             for (const service of services) {
                 const serviceId = await PrismaDB.service.findUnique({
@@ -115,8 +119,10 @@ export class ComboController {
     ) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
-            const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
-            updateComboDto.picture = imgData.data.link;
+            if (file) {
+                const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
+                updateComboDto.picture = imgData.data.link;
+            }
             const services = updateComboDto.services.split(',').filter((id) => id.trim() !== '');
             for (const service of services) {
                 const serviceId = await PrismaDB.service.findUnique({

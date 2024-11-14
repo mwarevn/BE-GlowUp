@@ -15,7 +15,8 @@ import { BannerModule } from './modules/banner/banner.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { PaymentModule } from './modules/payment/payment.module';
 import { VnpayModule } from 'nestjs-vnpay';
-import { ignoreLogger } from 'vnpay';
+import { SocketModule } from './modules/socket/socket.module';
+import { OtpModule } from './modules/otp/otp.module';
 
 @Module({
     imports: [
@@ -32,6 +33,8 @@ import { ignoreLogger } from 'vnpay';
         BookingModule,
         VnpayModule,
         PaymentModule,
+        SocketModule,
+        OtpModule,
     ],
     controllers: [AppController],
     providers: [AppService, PrismaService],

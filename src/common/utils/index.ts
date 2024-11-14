@@ -20,6 +20,8 @@ export const selectFileds = {
     date_of_birth: true,
     address: true,
     profile: true,
+    createdAt: true,
+    updatedAt: true,
 };
 
 export const uploadSingleImageThirdParty = async (req: Request) => {
@@ -63,16 +65,19 @@ export const uploadSingleImageThirdParty = async (req: Request) => {
 };
 
 export const formatDate = (dateTime: Date) => {
-    try {
-        const hours = String(dateTime.getHours()).padStart(2, '0');
-        const minutes = String(dateTime.getMinutes()).padStart(2, '0');
-        const day = String(dateTime.getDate()).padStart(2, '0');
-        const month = String(dateTime.getMonth() + 1).padStart(2, '0');
-        const year = dateTime.getFullYear();
-        return `${hours}:${minutes} - ${day}/${month}/${year}`;
-    } catch (error) {
-        return null;
-    }
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3,
+    });
+    const parts = formatter.formatToParts(dateTime);
+    const dateString = `${parts[4].value}-${parts[2].value}-${parts[0].value}T${parts[6].value}:${parts[8].value}:${parts[10].value}.${String(new Date().getMilliseconds()).padStart(3, '0')}Z`;
+    return dateString as unknown as Date;
 };
 
 export function isDateInRange(dateString) {
