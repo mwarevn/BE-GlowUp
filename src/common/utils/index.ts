@@ -20,6 +20,8 @@ export const selectFileds = {
     date_of_birth: true,
     address: true,
     profile: true,
+    createdAt: true,
+    updatedAt: true,
 };
 
 export const uploadSingleImageThirdParty = async (req: Request) => {
