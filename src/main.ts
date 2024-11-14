@@ -7,9 +7,10 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as bodyParsers from 'body-parser/common';
 import './workers/check-booking.worker';
 import { SocketGateway } from 'src/modules/socket/socket.gateway';
+import { applyGuard } from 'src/common/guards/nest.guard';
+
 let socketGateway: SocketGateway;
 
 async function bootstrap() {
@@ -57,7 +58,7 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
     // end
 
-    await app.listen(PORT, bodyParsers).then(() => {
+    await app.listen(PORT, applyGuard).then(() => {
         console.clear();
         console.log('────────────────────────────────────────────────────────────────────────────────');
         console.log('\n');
