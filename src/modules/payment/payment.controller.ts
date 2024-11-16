@@ -9,6 +9,7 @@ import qs from 'qs';
 import * as crypto from 'crypto';
 import { PrismaDB } from '../prisma/prisma.extensions';
 import mongoose from 'mongoose';
+import path from 'path';
 let querystring = require('qs');
 
 @Controller('payment')
@@ -100,7 +101,13 @@ export class PaymentController {
             const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
             res.status(200).json({ paymentUrl });
         } catch (error) {
-            throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+                path: '/payment/create_payment_url',
+            };
         }
     }
 

@@ -23,6 +23,7 @@ import { UploadService } from '../upload/upload.service';
 import { multerOptions } from 'src/common/configs/upload';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import mongoose from 'mongoose';
+import path from 'path';
 
 @Controller('banner')
 export class BannerController {
@@ -50,37 +51,58 @@ export class BannerController {
             return res.json({
                 message: 'Uploaded successfully',
                 success: true,
-                banner,
+                result: banner,
             });
         } catch (error) {
             if (error.code === 'P2002') {
-                throw new HttpException(
-                    `The banner name must be unique. The value you provided already exists.`,
-                    HttpStatus.CONFLICT,
-                );
+                res.json({
+                    success: false,
+                    statusCode: HttpStatus.CONFLICT,
+                    message: `The banner name must be unique. The value you provided already exists.`,
+                    result: null,
+                    path: '/banner',
+                });
             }
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/banner',
+            });
         }
     }
 
     @Get()
-    async findAll() {
+    async findAll(@Res() res: Response) {
         try {
             const banner = await this.bannerService.findAll();
             return { success: true, data: banner };
         } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/banner',
+            });
         }
     }
 
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id') id: string, @Res() res: Response) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found user with id ${id}`;
             const banner = await this.bannerService.findOne(id);
             return { success: true, data: banner };
         } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/banner',
+            });
         }
     }
 
@@ -115,7 +137,13 @@ export class BannerController {
                     HttpStatus.CONFLICT,
                 );
             }
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/banner',
+            });
         }
     }
 

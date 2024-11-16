@@ -20,6 +20,7 @@ import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { UploadService } from '../upload/upload.service';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import path from 'path';
 @UseInterceptors(uploadSingleImageInterceptor())
 @Controller('service')
 export class ServiceController {
@@ -43,15 +44,24 @@ export class ServiceController {
                 createServiceDto.picture = 'https://placehold.co/600x400';
             }
             const service = await this.serviceService.create(createServiceDto);
-            res.json({ success: true, data: service });
+            res.json({ success: true, result: service });
         } catch (error) {
             if (error.code === 'P2002') {
-                throw new HttpException(
-                    `The service name must be unique. The value you provided already exists.`,
-                    HttpStatus.CONFLICT,
-                );
+                res.json({
+                    success: false,
+                    statusCode: HttpStatus.CONFLICT,
+                    message: `The service name must be unique. The value you provided already exists.`,
+                    result: null,
+                    path: '/service',
+                });
             }
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/service',
+            });
         }
     }
 
@@ -59,7 +69,7 @@ export class ServiceController {
     async findAll() {
         try {
             const service = await this.serviceService.findAll();
-            return { success: true, data: service };
+            return { success: true, result: service };
         } catch (error) {
             throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -67,9 +77,16 @@ export class ServiceController {
 
     @Get(':id')
     async findOne(@Param('id') id: string) {
-        if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
+        if (!mongoose.Types.ObjectId.isValid(id))
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Invalid service id',
+                result: null,
+                path: '/service',
+            };
         const service = await this.serviceService.findOne(id);
-        return { success: true, data: service };
+        return { success: true, result: service };
     }
     @Patch(':id')
     async update(
@@ -81,23 +98,42 @@ export class ServiceController {
     ) {
         console.log(updateServiceDto.picture);
         try {
-            if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
+            if (!mongoose.Types.ObjectId.isValid(id))
+                return {
+                    success: false,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: 'Invalid service id',
+                    result: null,
+                    path: '/service',
+                };
 
             if (file) {
                 const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
                 updateServiceDto.picture = imgData.data.link;
             }
             const service = await this.serviceService.update(id, updateServiceDto);
-            res.json({ success: true, data: service });
+            res.json({ success: true, result: service });
         } catch (error) {
-            console.log(error);
-            throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/service',
+            });
         }
     }
 
     @Delete(':id')
     async remove(@Param('id') id: string) {
-        if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
+        if (!mongoose.Types.ObjectId.isValid(id))
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Invalid service id',
+                result: null,
+                path: '/service',
+            };
         const service = await this.serviceService.remove(id);
         return { success: true };
     }
