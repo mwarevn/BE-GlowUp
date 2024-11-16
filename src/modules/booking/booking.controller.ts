@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException, HttpStatus } from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingQuery } from 'src/modules/booking/constant';
+import path from 'path';
 
 @Controller('booking')
 export class BookingController {
@@ -11,9 +12,19 @@ export class BookingController {
     @Post()
     async create(@Body() createBookingDto: CreateBookingDto) {
         try {
-            return await this.bookingService.create(createBookingDto);
+            const booking = await this.bookingService.create(createBookingDto);
+            return {
+                success: true,
+                result: booking,
+            };
         } catch (error) {
-            return { error: error.message };
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+                path: '/booking',
+            };
         }
     }
 
@@ -22,25 +33,48 @@ export class BookingController {
         const searchQuery = Object.keys(query)[0];
 
         if (!Object.values(BookingQuery).includes(searchQuery as BookingQuery) && Object.keys(query).length > 0) {
-            throw new BadRequestException('Invalid query');
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Invalid query',
+                result: null,
+                path: '/booking',
+            };
         }
 
         const bookings = await this.bookingService.findAll(searchQuery, query[searchQuery]);
 
-        return bookings || [];
+        return {
+            success: true,
+            result: bookings,
+        };
     }
 
     @Get(':id')
     async findOne(@Param('id') id: string) {
-        return this.bookingService.findOne(id);
+        const booking = await this.bookingService.findOne(id);
+        return {
+            success: true,
+            result: booking,
+        };
     }
 
     @Patch(':id')
     async update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto) {
         try {
-            return await this.bookingService.update(id, updateBookingDto);
+            const booking = await this.bookingService.update(id, updateBookingDto);
+            return {
+                success: true,
+                result: booking,
+            };
         } catch (error) {
-            return { error: error.message };
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+                path: '/booking',
+            };
         }
     }
 
@@ -50,7 +84,13 @@ export class BookingController {
             const deleted = await this.bookingService.remove(id);
             return { success: deleted.deleted };
         } catch (error) {
-            return { error: error.message };
+            return {
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+                path: '/booking',
+            };
         }
     }
 }

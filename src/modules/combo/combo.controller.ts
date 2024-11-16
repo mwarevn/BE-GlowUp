@@ -23,6 +23,8 @@ import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { PrismaDB } from '../prisma/prisma.extensions';
 import mongoose from 'mongoose';
+import { STATUS_CODES } from 'http';
+import path from 'path';
 
 @UseInterceptors(uploadSingleImageInterceptor())
 @Controller('combo')
@@ -57,21 +59,36 @@ export class ComboController {
                     },
                 });
                 if (!serviceId) {
-                    throw new HttpException(`Service id ${service} not found`, HttpStatus.NOT_FOUND);
+                    res.json({
+                        success: false,
+                        statusCode: HttpStatus.NOT_FOUND,
+                        message: `Service id ${service} not found`,
+                        result: null,
+                        path: '/combo',
+                    });
                 }
             }
 
             const combo = await this.comboService.create(createComboDto);
 
-            res.json({ success: true, data: combo });
+            res.json({ success: true, result: combo });
         } catch (error) {
             if (error.code === 'P2002') {
-                throw new HttpException(
-                    `The combo name must be unique. The value you provided already exists.`,
-                    HttpStatus.CONFLICT,
-                );
+                res.json({
+                    success: false,
+                    statusCode: HttpStatus.CONFLICT,
+                    message: `The combo name must be unique. The value you provided already exists.`,
+                    result: null,
+                    path: '/combo',
+                });
             }
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/combo',
+            });
         }
     }
 
@@ -79,9 +96,15 @@ export class ComboController {
     async findAll() {
         try {
             const combo = await this.comboService.findAll();
-            return { success: true, data: combo };
+            return { success: true, result: combo };
         } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return {
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/combo',
+            };
         }
     }
     @Get('filter/:id')
@@ -89,9 +112,15 @@ export class ComboController {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
             const combo = await this.comboService.findFilter(id);
-            return { success: true, data: combo };
+            return { success: true, result: combo };
         } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return {
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/combo',
+            };
         }
     }
 
@@ -103,9 +132,15 @@ export class ComboController {
     async findOne(@Param('id') id: string) {
         try {
             const combo = await this.comboService.findOne(id);
-            return { success: true, data: combo };
+            return { success: true, result: combo };
         } catch (error) {
-            throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return {
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/combo',
+            };
         }
     }
 
@@ -118,7 +153,14 @@ export class ComboController {
         @Res() res: Response,
     ) {
         try {
-            if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
+            if (!mongoose.Types.ObjectId.isValid(id))
+                return {
+                    success: false,
+                    statusCode: HttpStatus.NOT_FOUND,
+                    message: `not found mongoose Types ObjectId ${id}`,
+                    result: null,
+                    path: '/combo',
+                };
             if (file) {
                 const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
                 updateComboDto.picture = imgData.data.link;
@@ -134,13 +176,34 @@ export class ComboController {
                     },
                 });
                 if (!serviceId) {
-                    throw new HttpException(`Service id ${service} not found`, HttpStatus.NOT_FOUND);
+                    res.json({
+                        success: false,
+                        statusCode: HttpStatus.NOT_FOUND,
+                        message: `Service id ${service} not found`,
+                        result: null,
+                        path: '/combo',
+                    });
                 }
             }
             const combo = await this.comboService.update(id, updateComboDto);
-            res.json({ success: true, data: combo });
+            res.json({ success: true, result: combo });
         } catch (error) {
-            throw new HttpException('Internal server error' + error, HttpStatus.INTERNAL_SERVER_ERROR);
+            if (error.code === 'P2002') {
+                res.json({
+                    success: false,
+                    statusCode: HttpStatus.CONFLICT,
+                    message: `The combo name must be unique. The value you provided already exists.`,
+                    result: null,
+                    path: '/combo',
+                });
+                res.json({
+                    success: false,
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: error.message,
+                    result: null,
+                    path: '/combo',
+                });
+            }
         }
     }
 
@@ -151,7 +214,13 @@ export class ComboController {
             const combo = await this.comboService.remove(id);
             return { success: true };
         } catch (error) {
-            throw new HttpException('Internal server error' + error, HttpStatus.INTERNAL_SERVER_ERROR);
+            return {
+                success: false,
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: error.message,
+                result: null,
+                path: '/combo',
+            };
         }
     }
 }

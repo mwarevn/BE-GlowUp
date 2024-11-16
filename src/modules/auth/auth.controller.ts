@@ -5,6 +5,7 @@ import {
     Controller,
     ForbiddenException,
     Get,
+    HttpStatus,
     NotFoundException,
     Param,
     Post,
@@ -26,6 +27,7 @@ import * as bcrypt from 'bcrypt';
 import { ForgotPasswdDTO } from 'src/modules/auth/dto/forgot-password.dto';
 import { RefreshTokenDTO } from 'src/modules/auth/dto/refresh-token.dto';
 import { JwtService } from '@nestjs/jwt';
+import path from 'path';
 
 @Controller('auth')
 export class AuthController {
@@ -40,9 +42,15 @@ export class AuthController {
         try {
             const createdAccount = await this.authService.registerAccount(registerAccountDTO);
 
-            res.json({ success: true, data: createdAccount });
+            res.json({ success: true, result: createdAccount });
         } catch (error) {
-            throw new ServiceUnavailableException(error.message);
+            res.json({
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+                path: '/auth/register',
+            });
         }
     }
 
@@ -52,7 +60,13 @@ export class AuthController {
         try {
             const validUser = await this.authService.loginSystem(loginDto, res);
             if (!validUser || !validUser.password) {
-                throw new UnauthorizedException('Số điện thoại hoặc mật khẩu không chính xác!');
+                return res.json({
+                    success: false,
+                    statusCode: HttpStatus.UNAUTHORIZED,
+                    message: 'Số điện thoại hoặc mật khẩu không chính xác!',
+                    result: null,
+                    path: '/auth/login',
+                });
             }
 
             // remove protected fields
@@ -72,11 +86,17 @@ export class AuthController {
             res.json({
                 refresh_token,
                 access_token,
-                data: validUser,
+                result: validUser,
             });
         } catch (error) {
             // console.log(error);
-            throw new UnauthorizedException('Số điện thoại hoặc mật khẩu không chính xác!');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.UNAUTHORIZED,
+                message: 'Số điện thoại hoặc mật khẩu không chính xác!',
+                result: null,
+                path: '/auth/login',
+            });
         }
     }
 
@@ -105,7 +125,13 @@ export class AuthController {
 
         // only self can change the passwd
         if (user['id'] !== id) {
-            throw new ForbiddenException('Không có quyền thay đổi mật khẩu của người khác !');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.FORBIDDEN,
+                message: 'Không có quyền thay đổi mật khẩu của người khác !',
+                result: null,
+                path: '/auth/change-password',
+            });
         }
 
         // check valid user in database
@@ -114,19 +140,37 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            throw new BadRequestException('yêu cầu lỗi, tài khoản này không tồn tại hoặc đã bị xoá!');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.NOT_FOUND,
+                message: 'yêu cầu lỗi, tài khoản này không tồn tại hoặc đã bị xoá!',
+                result: null,
+                path: '/auth/change-password',
+            });
         }
 
         // compare current payload password vs database password
         const isValidPasswd = await this.authService.verifyPassword(changePasswdDTO.current_password, exitstsUser.password);
 
         if (!isValidPasswd) {
-            throw new BadRequestException('Mật khẩu không chính xác!');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.UNAUTHORIZED,
+                message: 'Mật khẩu hiện tại không chính xác!',
+                result: null,
+                path: '/auth/change-password',
+            });
         }
 
         // ignore same passwd
         if (changePasswdDTO.current_password === changePasswdDTO.new_password) {
-            throw new BadRequestException('Mật khẩu này đang được sử dụng!');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: 'Mật khẩu này đang được sử dụng',
+                result: null,
+                path: '/auth/change-password',
+            });
         }
 
         // hash passwd
@@ -157,7 +201,13 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            throw new NotFoundException('Tài khoản không tồn tại!');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.NOT_FOUND,
+                message: 'Tài khoản không tồn tại!',
+                result: null,
+                path: '/auth/forgot-password',
+            });
         }
 
         // hash passwd
@@ -194,7 +244,12 @@ export class AuthController {
 
             res.json({ success: true, access_token });
         } catch (error) {
-            throw new UnauthorizedException('Invalid refresh token!');
+            return res.json({
+                success: false,
+                statusCode: HttpStatus.UNAUTHORIZED,
+                message: 'Invalid refresh token!',
+                result: null,
+            });
         }
     }
 
