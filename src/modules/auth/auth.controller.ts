@@ -60,7 +60,7 @@ export class AuthController {
         try {
             const validUser = await this.authService.loginSystem(loginDto, res);
             if (!validUser || !validUser.password) {
-                return res.json({
+                res.json({
                     success: false,
                     statusCode: HttpStatus.UNAUTHORIZED,
                     message: 'Số điện thoại hoặc mật khẩu không chính xác!',
@@ -90,7 +90,7 @@ export class AuthController {
             });
         } catch (error) {
             // console.log(error);
-            return res.json({
+            res.json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: 'Số điện thoại hoặc mật khẩu không chính xác!',
@@ -140,7 +140,7 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            return res.json({
+            res.json({
                 success: false,
                 statusCode: HttpStatus.NOT_FOUND,
                 message: 'yêu cầu lỗi, tài khoản này không tồn tại hoặc đã bị xoá!',
@@ -153,7 +153,7 @@ export class AuthController {
         const isValidPasswd = await this.authService.verifyPassword(changePasswdDTO.current_password, exitstsUser.password);
 
         if (!isValidPasswd) {
-            return res.json({
+            res.json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: 'Mật khẩu hiện tại không chính xác!',
@@ -164,7 +164,7 @@ export class AuthController {
 
         // ignore same passwd
         if (changePasswdDTO.current_password === changePasswdDTO.new_password) {
-            return res.json({
+            res.json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: 'Mật khẩu này đang được sử dụng',
@@ -201,7 +201,7 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            return res.json({
+            res.json({
                 success: false,
                 statusCode: HttpStatus.NOT_FOUND,
                 message: 'Tài khoản không tồn tại!',
@@ -244,7 +244,7 @@ export class AuthController {
 
             res.json({ success: true, access_token });
         } catch (error) {
-            return res.json({
+            res.json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: 'Invalid refresh token!',
