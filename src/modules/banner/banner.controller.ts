@@ -55,7 +55,7 @@ export class BannerController {
             });
         } catch (error) {
             if (error.code === 'P2002') {
-                res.json({
+                res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
                     message: `The banner name must be unique. The value you provided already exists.`,
@@ -63,7 +63,7 @@ export class BannerController {
                     path: '/banner',
                 });
             }
-            res.json({
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -79,7 +79,7 @@ export class BannerController {
             const banner = await this.bannerService.findAll();
             return { success: true, data: banner };
         } catch (error) {
-            res.json({
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -96,7 +96,7 @@ export class BannerController {
             const banner = await this.bannerService.findOne(id);
             return { success: true, data: banner };
         } catch (error) {
-            res.json({
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -125,7 +125,7 @@ export class BannerController {
             const banners = files.banners.map((file) => process.env.API_URL + file.path.replace('public/uploads', '')); // Lưu các đường dẫn ảnh
             const banner = await this.bannerService.update(id, name, banners); // Gọi service để lưu vào DB
 
-            return res.json({
+            res.status(200).json({
                 message: 'Update successfully',
                 success: true,
                 banner,
@@ -137,7 +137,7 @@ export class BannerController {
                     HttpStatus.CONFLICT,
                 );
             }
-            res.json({
+            res.status(500).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
