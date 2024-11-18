@@ -59,7 +59,7 @@ export class ComboController {
                     },
                 });
                 if (!serviceId) {
-                    res.json({
+                    res.status(HttpStatus.NOT_FOUND).json({
                         success: false,
                         statusCode: HttpStatus.NOT_FOUND,
                         message: `Service id ${service} not found`,
@@ -74,7 +74,7 @@ export class ComboController {
             res.json({ success: true, result: combo });
         } catch (error) {
             if (error.code === 'P2002') {
-                res.json({
+                res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
                     message: `The combo name must be unique. The value you provided already exists.`,
@@ -82,7 +82,7 @@ export class ComboController {
                     path: '/combo',
                 });
             }
-            res.json({
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -93,34 +93,40 @@ export class ComboController {
     }
 
     @Get()
-    async findAll() {
+    async findAll(@Res() res: Response) {
         try {
             const combo = await this.comboService.findAll();
-            return { success: true, result: combo };
+            res.status(200).json({ success: true, result: combo });
         } catch (error) {
-            return {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
                 result: null,
                 path: '/combo',
-            };
+            });
         }
     }
     @Get('filter/:id')
-    async findFilter(@Param('id') id: string) {
+    async findFilter(@Param('id') id: string, @Res() res: Response) {
         try {
-            if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
+            if (!mongoose.Types.ObjectId.isValid(id))
+                res.status(400).json({
+                    success: false,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: `not found mongoose Types ObjectId ${id}`,
+                    result: null,
+                });
             const combo = await this.comboService.findFilter(id);
-            return { success: true, result: combo };
+            res.status(200).json({ success: true, result: combo });
         } catch (error) {
-            return {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
                 result: null,
                 path: '/combo',
-            };
+            });
         }
     }
 
@@ -129,18 +135,18 @@ export class ComboController {
         return this.comboService.search(query);
     }
     @Get(':id')
-    async findOne(@Param('id') id: string) {
+    async findOne(@Param('id') id: string, @Res() res: Response) {
         try {
             const combo = await this.comboService.findOne(id);
-            return { success: true, result: combo };
+            res.status(200).json({ success: true, result: combo });
         } catch (error) {
-            return {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
                 result: null,
                 path: '/combo',
-            };
+            });
         }
     }
 
@@ -154,13 +160,13 @@ export class ComboController {
     ) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id))
-                return {
+                res.status(HttpStatus.NOT_FOUND).json({
                     success: false,
                     statusCode: HttpStatus.NOT_FOUND,
                     message: `not found mongoose Types ObjectId ${id}`,
                     result: null,
                     path: '/combo',
-                };
+                });
             if (file) {
                 const imgData = await this.uploadService.uploadSingleImageThirdParty(req);
                 updateComboDto.picture = imgData.data.link;
@@ -176,7 +182,7 @@ export class ComboController {
                     },
                 });
                 if (!serviceId) {
-                    res.json({
+                    res.status(HttpStatus.NOT_FOUND).json({
                         success: false,
                         statusCode: HttpStatus.NOT_FOUND,
                         message: `Service id ${service} not found`,
@@ -208,19 +214,19 @@ export class ComboController {
     }
 
     @Delete(':id')
-    async remove(@Param('id') id: string) {
+    async remove(@Param('id') id: string, @Res() res: Response) {
         try {
-            if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
+            if (!mongoose.Types.ObjectId.isValid(id)) res.status(400).json(`not found mongoose Types ObjectId ${id}`);
             const combo = await this.comboService.remove(id);
-            return { success: true };
+            res.status(200).json({ success: true });
         } catch (error) {
-            return {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
                 result: null,
                 path: '/combo',
-            };
+            });
         }
     }
 }
