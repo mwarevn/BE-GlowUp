@@ -48,7 +48,7 @@ export class BannerController {
             const banners = files.banners.map((file) => process.env.API_URL + file.path.replace('public/uploads', '')); // Lưu các đường dẫn ảnh
             const banner = await this.bannerService.create(name, banners); // Gọi service để lưu vào DB
 
-            return res.json({
+            res.json({
                 message: 'Uploaded successfully',
                 success: true,
                 result: banner,
@@ -77,7 +77,7 @@ export class BannerController {
     async findAll(@Res() res: Response) {
         try {
             const banner = await this.bannerService.findAll();
-            return { success: true, data: banner };
+            res.status(200).json({ success: true, result: banner });
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
@@ -94,7 +94,7 @@ export class BannerController {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found user with id ${id}`;
             const banner = await this.bannerService.findOne(id);
-            return { success: true, data: banner };
+            res.status(200).json({ success: true, result: banner });
         } catch (error) {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
