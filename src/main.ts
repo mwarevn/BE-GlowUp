@@ -11,6 +11,7 @@ import * as bodyParsers from 'body-parser/common';
 import './workers/check-booking.worker';
 import { SocketGateway } from 'src/modules/socket/socket.gateway';
 let socketGateway: SocketGateway;
+import * as mongoose from 'mongoose';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -57,17 +58,24 @@ async function bootstrap() {
     SwaggerModule.setup('api-docs', app, document);
     // end
 
-    await app.listen(PORT).then(() => {
-        console.clear();
-        console.log('────────────────────────────────────────────────────────────────────────────────');
-        console.log('\n');
-        // console.log(`[!] Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
-        console.log('\n');
-        console.log(' > Application running on PORT: ' + PORT);
-        console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
-        console.log('\n\n');
-        console.log(new Date()); //
-    });
+    await app
+        .listen(PORT, () => {
+            mongoose
+                .connect(process.env.MONGODB_CONECTION_STRING)
+                .then(() => {})
+                .catch(console.error);
+        })
+        .then(() => {
+            console.clear();
+            console.log('────────────────────────────────────────────────────────────────────────────────');
+            console.log('\n');
+            // console.log(`[!] Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
+            console.log('\n');
+            console.log(' > Application running on PORT: ' + PORT);
+            console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
+            console.log('\n\n');
+            console.log(new Date()); //
+        });
 }
 
 bootstrap();
