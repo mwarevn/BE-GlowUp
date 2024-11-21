@@ -60,18 +60,15 @@ async function bootstrap() {
     // end
 
     await app
-        .listen(PORT, async () =>
-            Promise.all([
-                mongoose
-                    .connect(process.env.MONGODB_CONECTION_STRING)
-                    .then(() => {})
-                    .catch(console.error),
-                applyGuard,
-                () => {
-                    console.log("Guard's applied");
-                },
-            ]),
-        )
+        .listen(PORT, () => {
+            applyGuard();
+            mongoose
+                .connect(process.env.MONGODB_CONECTION_STRING)
+                .then(() => {
+                    console.log('Connected to MongoDB');
+                })
+                .catch(console.error);
+        })
         .then(() => {
             // console.clear();
             console.log('────────────────────────────────────────────────────────────────────────────────');
