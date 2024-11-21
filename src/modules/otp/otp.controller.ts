@@ -90,7 +90,7 @@ export class OtpController {
                 // const body = Buffer.concat(chunks);
                 res.status(200).json({
                     message: 'OTP sent successfully',
-                    // link: `https://minhcuder.com/otp/verify?number_phone=${number_phone}&otp_code=${otp_code}`,
+                    link: `https://minhcuder.com/otp/verify?number_phone=${number_phone}&otp_code=${otp_code}`,
                 });
             });
             response.on('error', (error) => {
