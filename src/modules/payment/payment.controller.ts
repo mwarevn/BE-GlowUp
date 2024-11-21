@@ -39,7 +39,6 @@ export class PaymentController {
 
     @Post('/create_payment_url')
     async createPaymentUrl(@Body() body: any, @Req() req: Request, @Res() res: Response) {
-        console.log(body);
         try {
             process.env.TZ = 'Asia/Ho_Chi_Minh';
             const date = new Date();
@@ -101,13 +100,13 @@ export class PaymentController {
             const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
             res.status(200).json({ paymentUrl });
         } catch (error) {
-            return {
+            res.status(500).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
                 result: null,
                 path: '/payment/create_payment_url',
-            };
+            });
         }
     }
 

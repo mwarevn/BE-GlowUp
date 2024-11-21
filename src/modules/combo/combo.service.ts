@@ -31,30 +31,48 @@ export class ComboService {
     }
 
     async findAll() {
-        // Lấy tất cả các combo từ database
         const combos = await PrismaDB.combo.findMany();
 
+        // Lấy tất cả các ID của service hiện có trong database
+        const existingServiceIds = new Set(
+            (await PrismaDB.service.findMany({ select: { id: true } })).map((service) => service.id),
+        );
+
         for (const combo of combos) {
-            // Lấy danh sách các dịch vụ có trong combo dựa trên `combo.services`
+            // Lọc ra những service id tồn tại
+            const validServiceIds = combo.services.filter((serviceId) => existingServiceIds.has(serviceId));
+
+            // Nếu array services thay đổi, cập nhật lại combo
+            if (validServiceIds.length !== combo.services.length) {
+                await PrismaDB.combo.update({
+                    where: { id: combo.id },
+                    data: { services: validServiceIds },
+                });
+            }
+
+            // Tính lại giá dựa trên các service còn tồn tại
             const servicePrices = await PrismaDB.service.findMany({
                 where: {
                     id: {
-                        in: combo.services,
+                        in: validServiceIds,
                     },
+                },
+                select: {
+                    id: true,
+                    price: true,
                 },
             });
 
-            // Tính tổng giá các dịch vụ trong combo
             const price = servicePrices.reduce((acc, service) => acc + parseFloat(service.price), 0);
 
-            // Cập nhật giá combo vào cơ sở dữ liệu
+            // Cập nhật giá combo
             await PrismaDB.combo.update({
                 where: { id: combo.id },
-                data: { price: price + '' }, // Gán giá trị của price một cách rõ ràng
+                data: { price: price + '' },
             });
         }
 
-        return await PrismaDB.combo.findMany(); // Trả về danh sách combo đã được cập nhật giá
+        return await PrismaDB.combo.findMany();
     }
 
     async findFilter(id: string) {
