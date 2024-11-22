@@ -145,9 +145,15 @@ export class OtpController {
             return '84' + phone;
         }
 
-        if (!/^\d{10}$/.test(phone)) {
+        if (/^84\d{9}$/.test(phone)) {
+            return phone;
+        } else if (!/^\d{10}$/.test(phone)) {
             return null;
         }
+
+        // if (!/^\d{10}$/.test(phone)) {
+        //     return null;
+        // }
 
         const prefix = phone.slice(0, 3);
         const countryCode = phoneMap[prefix];
