@@ -1,5 +1,6 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
+import { selectFileds } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
 const bookingQueue = new Queue('mutation-booking-queue', {
@@ -67,6 +68,23 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
         const newBooking = await PrismaDB.booking.update({
             where: { id },
             data: payload as any,
+            include: {
+                combo: {
+                    select: {
+                        services: true,
+                        id: true,
+                        name: true,
+                        description: true,
+                        picture: true,
+                    },
+                },
+                customer: {
+                    select: selectFileds,
+                },
+                stylist: {
+                    select: selectFileds,
+                },
+            },
         });
 
         return { success: true, data: newBooking };
@@ -90,6 +108,23 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
 
         const newBooking = await PrismaDB.booking.create({
             data: payload as any,
+            include: {
+                combo: {
+                    select: {
+                        services: true,
+                        id: true,
+                        name: true,
+                        description: true,
+                        picture: true,
+                    },
+                },
+                customer: {
+                    select: selectFileds,
+                },
+                stylist: {
+                    select: selectFileds,
+                },
+            },
         });
 
         return { success: true, data: newBooking };
