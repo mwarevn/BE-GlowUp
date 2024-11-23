@@ -70,7 +70,7 @@ async function bootstrap() {
                 .catch(console.error);
         })
         .then(() => {
-            console.clear();
+            // console.clear();
             console.log('────────────────────────────────────────────────────────────────────────────────');
             console.log('\n');
             console.log(`[!] Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
