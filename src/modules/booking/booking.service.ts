@@ -14,7 +14,7 @@ const populateBookingData = async (validBooking) => {
             ...(await PrismaDB.service.findMany({
                 where: {
                     id: {
-                        in: validBooking.combo.services,
+                        in: validBooking.combo?.services,
                     },
                 },
             })),
@@ -96,7 +96,7 @@ export class BookingService {
             throw new Error(result.message);
         }
 
-        return result;
+        return await populateBookingData(result.data);
     }
 
     async findAll(key, value) {
