@@ -54,17 +54,36 @@ export class BookingService {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        // if (!isDateInRange(newStartTime)) {
-        //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
-        // } //
+        if (newStartTime < new Date()) {
+            throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+        }
 
-        const stylist = await PrismaDB.user.findUnique({
-            where: {
-                id: createBookingDto.stylist_id as any,
-                role: Roles.STYLIST,
-            },
-            select: { profile: true },
-        });
+        if (!isDateInRange(newStartTime)) {
+            throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+        } // 8h - 20h30
+
+        const [stylist, combo] = await Promise.all([
+            PrismaDB.user.findUnique({
+                where: {
+                    id: createBookingDto.stylist_id as any,
+                    role: Roles.STYLIST,
+                },
+                select: { profile: true },
+            }),
+            PrismaDB.combo.findUnique({
+                where: {
+                    id: createBookingDto.combo_id as any,
+                },
+            }),
+        ]);
+
+        if (combo == null) {
+            throw new Error('Combo không tồn tại!.');
+        }
+
+        if (!combo?.services || combo.services.length === 0) {
+            throw new Error('Combo này không có dịch vụ!.');
+        }
 
         if (stylist == null || !stylist.profile || stylist.profile.stylist.isWorking === false) {
             throw new Error('Stylist này không còn làm việc!.');
