@@ -2,7 +2,7 @@ import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
-const bookingQueue = new Queue('booking-queue', {
+const bookingQueue = new Queue('mutation-booking-queue', {
     redis: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),

@@ -3,7 +3,7 @@ import * as Queue from 'bull';
 import { notifyUser } from 'src/main';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
-const checkBookingQueue = new Queue('booking-queue', {
+const checkBookingQueue = new Queue('check-booking-queue', {
     redis: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT),
