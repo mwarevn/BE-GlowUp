@@ -75,6 +75,7 @@ async function bootstrap() {
             console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
             console.log('\n\n');
             console.log(new Date());
+            console.log('\n\n');
         });
 }
 
