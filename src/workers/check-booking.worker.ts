@@ -25,7 +25,7 @@ export const scheduleBookingCheck = async (booking) => {
         const delay = checkTime.getTime() - now.getTime();
 
         const existsJob = await getCheckBookingQueueJob(booking.id);
-        // console.log(existsJob);
+
         if (existsJob === null) {
             console.log(
                 'Job time out - will auto cancel after: ' + (delay > 0 ? delay : 0),
@@ -42,7 +42,6 @@ export const scheduleBookingCheck = async (booking) => {
                 delay > 0 ? delay : 0,
             );
         } else {
-            console.log('exists job');
             if (existsJob.finishedOn) {
                 console.log('remove  exists');
                 removeJob(booking.id);
