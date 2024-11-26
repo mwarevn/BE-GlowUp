@@ -10,7 +10,10 @@ export class ServiceService {
 
     async create(createServiceDto: CreateServiceDto) {
         const service = await PrismaDB.service.create({
-            data: createServiceDto,
+            data: {
+                ...createServiceDto,
+                time: parseInt(createServiceDto.time),
+            },
         });
         return service;
     }
@@ -30,7 +33,10 @@ export class ServiceService {
     update(id: string, updateServiceDto: UpdateServiceDto) {
         const service = PrismaDB.service.update({
             where: { id },
-            data: updateServiceDto,
+            data: {
+                ...updateServiceDto,
+                time: parseInt(updateServiceDto.time),
+            },
         });
         return service;
     }

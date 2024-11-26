@@ -22,6 +22,7 @@ export class ComboService {
         const combo = await this.prismaService.combo.create({
             data: {
                 ...data,
+                total_time: parseInt(createComboDto.total_time) || 0,
                 point: parseInt(createComboDto.point),
                 services: Array.from(set) as string[],
             },
@@ -60,15 +61,16 @@ export class ComboService {
                 select: {
                     id: true,
                     price: true,
+                    time: true,
                 },
             });
-
+            const time = servicePrices.reduce((acc, service) => acc + service.time, 0);
             const price = servicePrices.reduce((acc, service) => acc + parseFloat(service.price), 0);
 
             // Cập nhật giá combo
             await PrismaDB.combo.update({
                 where: { id: combo.id },
-                data: { price: price + '' },
+                data: { price: price + '', total_time: time },
             });
         }
 
@@ -120,6 +122,7 @@ export class ComboService {
             },
             data: {
                 ...data,
+                total_time: parseInt(updateComboDto.total_time) || 0,
                 point: parseInt(updateComboDto.point),
                 services: Array.from(set) as string[],
             },

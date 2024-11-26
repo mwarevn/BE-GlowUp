@@ -22,4 +22,7 @@ export class CreateServiceDto {
 
     @IsOptional()
     picture?: string;
+
+    @IsString()
+    time: string;
 }

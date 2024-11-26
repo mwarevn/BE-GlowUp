@@ -76,7 +76,7 @@ model Service {
   price       String
   description String
   picture     String?
-  total_time  String?
+  time  Int? @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deleted     Boolean  @default(false)
@@ -94,6 +94,7 @@ model Combo {
   deleted     Boolean   @default(false)
   Booking     Booking[]
   point       Int?       @default(0)
+  total_time  Int?       @default(0)
 }
 
 model Banner {
