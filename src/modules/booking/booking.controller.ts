@@ -10,6 +10,24 @@ import { Response } from 'express';
 export class BookingController {
     constructor(private readonly bookingService: BookingService) {}
 
+    @Get('cancel')
+    async cancelBooking(@Query('phone') phone: string, @Query('booking_id') booking_id: string, @Res() res: Response) {
+        try {
+            const booking = await this.bookingService.cancelBooking(phone, booking_id);
+            res.status(200).json({
+                success: true,
+                result: booking,
+            });
+        } catch (error) {
+            res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+            });
+        }
+    }
+
     @Post()
     async create(@Body() createBookingDto: CreateBookingDto, @Res() res: Response) {
         try {

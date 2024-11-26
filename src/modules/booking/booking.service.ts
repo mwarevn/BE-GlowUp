@@ -6,6 +6,7 @@ import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { BookingStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
 import { BookingQuery } from 'src/modules/booking/constant';
+import { removeJob } from 'src/queues/check-booking-queue';
 
 const populateBookingData = async (validBooking) => {
     const services = [];
@@ -38,6 +39,36 @@ const populateBookingData = async (validBooking) => {
 
 @Injectable()
 export class BookingService {
+    async cancelBooking(phone: string, booking_id: string) {
+        const booking = await PrismaDB.booking.findFirst({
+            where: {
+                id: booking_id,
+                customer: {
+                    phone_number: phone,
+                },
+            },
+        });
+
+        if (booking == null) {
+            throw new Error('Không tìm thấy booking!.');
+        }
+
+        if (booking.status === BookingStatus.CANCELED) {
+            throw new Error('Booking này đã bị hủy!.');
+        }
+
+        removeJob(booking_id);
+
+        return await PrismaDB.booking.update({
+            where: {
+                id: booking_id,
+            },
+            data: {
+                status: BookingStatus.CANCELED,
+            },
+        });
+    }
+
     /**
      * Coditions:
      * - Phải login (customer, stylist)
