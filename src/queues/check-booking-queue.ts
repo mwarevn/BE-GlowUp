@@ -1,7 +1,10 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
 import { notifyUser } from 'src/main';
+import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+
+const expoNotiService = new ExpoNotiService();
 
 const checkBookingQueue = new Queue('check-booking-queue', {
     redis: {
@@ -36,11 +39,20 @@ checkBookingQueue.process(8, async (job: any) => {
                 },
             });
         }
-        // send notification to user
-        notifyUser(payload.data.booking.customer_id, {
-            message: 'Booking canceled',
-            reson: 'Time out!',
+
+        const user = await PrismaDB.user.findUnique({
+            where: { id: payload.data.booking.customer_id },
         });
+
+        const token = user.notify_token;
+
+        expoNotiService.sendExpoNotify('Booking canceled', 'Time out!', 'hight', token);
+
+        // send notification to user
+        // notifyUser(payload.data.booking.customer_id, {
+        //     message: 'Booking canceled',
+        //     reson: 'Time out!',
+        // });
     } catch (error) {
         console.log(error);
         return { success: false, message: error.message };
