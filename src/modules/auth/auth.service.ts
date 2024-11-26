@@ -35,6 +35,10 @@ export class AuthService {
             return null;
         }
 
+        if (loginDto.notify_token) {
+            await this.userService.updateProfile({ id: matchedUser.id }, { notify_token: loginDto.notify_token });
+        }
+
         return matchedUser;
     }
 
