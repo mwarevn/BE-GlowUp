@@ -48,6 +48,7 @@ model User {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   profile          Profile?
+  notify_token     String?
   // is_password_set    Boolean @default(false)
   customerBookings Booking[] @relation("CustomerBooking")
   stylistBookings  Booking[] @relation("StylistBooking")

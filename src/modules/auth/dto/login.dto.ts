@@ -22,4 +22,8 @@ export class LoginDTO {
     @IsDefined()
     @IsNotEmpty()
     readonly password: string;
+
+    @IsString()
+    @IsOptional()
+    readonly notify_token?: string;
 }
