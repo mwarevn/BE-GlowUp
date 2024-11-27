@@ -1,23 +1,25 @@
-import { Controller, Get, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res } from '@nestjs/common';
 import { OtpService } from './otp.service';
 import { Request, Response } from 'express';
 import * as followRedirects from 'follow-redirects';
 import { OtpModel } from 'src/modules/otp/otp.schema';
+import { GetOTP_Dto } from 'src/modules/otp/dto/get-otp.dto';
+import { VerifyOTP_Dto } from 'src/modules/otp/dto/verify-otp.dto';
 const https = followRedirects.https;
 
 @Controller('otp')
 export class OtpController {
     constructor(private readonly otpService: OtpService) {}
 
-    @Get()
-    async getOTP(@Query('number_phone') number_phone: string, @Req() req: Request, @Res() res: Response) {
-        const phone = this.formatPhoneNumber(number_phone);
+    @Post()
+    async getOTP(@Body() getOTPDto: GetOTP_Dto, @Req() req: Request, @Res() res: Response) {
+        const phone = this.formatPhoneNumber(getOTPDto.phone_number);
 
         if (!phone) {
             return res.status(400).json({ message: 'Invalid phone number' });
         }
 
-        const existsOTP = await OtpModel.findOne({ number_phone: phone });
+        const existsOTP = await OtpModel.findOne({ phone_number: phone });
 
         if (existsOTP) {
             return res.status(400).json({
@@ -27,22 +29,23 @@ export class OtpController {
         }
 
         const otp_code = Math.floor(100000 + Math.random() * 900000).toString();
-        const createdOTP = await OtpModel.create({ otp: otp_code, number_phone: phone });
+        const createdOTP = await OtpModel.create({ otp: otp_code, phone_number: phone });
 
         return this.sendOTP(phone, otp_code, res);
 
         // return res.json({});
     }
 
-    @Get('verify')
-    async verifyOTP(@Query('number_phone') number_phone: string, @Query('otp_code') otp_code: string, @Res() res: Response) {
-        const phone = this.formatPhoneNumber(number_phone);
+    @Post('verify')
+    async verifyOTP(@Body() verifyOTP_Dto: VerifyOTP_Dto, @Res() res: Response) {
+        const phone = this.formatPhoneNumber(verifyOTP_Dto.phone_number);
+        const otp_code = verifyOTP_Dto.otp_code;
 
         if (!phone) {
             return res.status(400).json({ message: 'Invalid phone number' });
         }
 
-        const existsOTP = await OtpModel.findOne({ number_phone: phone });
+        const existsOTP = await OtpModel.findOne({ phone_number: phone });
 
         if (!existsOTP) {
             return res.status(400).json({ message: 'Invalid OTP code' });
@@ -52,12 +55,12 @@ export class OtpController {
             return res.status(400).json({ message: 'Invalid OTP code' });
         }
 
-        await OtpModel.deleteOne({ number_phone: phone });
+        await OtpModel.deleteOne({ phone_number: phone });
 
         return res.json({ message: 'OTP code is correct' });
     }
 
-    sendOTP(number_phone: string, otp_code: string, res: Response) {
+    sendOTP(phone_number: string, otp_code: string, res: Response) {
         const options = {
             method: 'POST',
             hostname: '8krlqe.api.infobip.com',
@@ -72,7 +75,7 @@ export class OtpController {
         const postData = JSON.stringify({
             messages: [
                 {
-                    destinations: [{ to: number_phone }],
+                    destinations: [{ to: phone_number }],
                     from: '447491163443',
                     text:
                         '[MWAREVN]\nYour OTP code is ' +
@@ -90,7 +93,7 @@ export class OtpController {
                 // const body = Buffer.concat(chunks);
                 res.status(200).json({
                     message: 'OTP sent successfully',
-                    link: `https://minhcuder.com/otp/verify?number_phone=${number_phone}&otp_code=${otp_code}`,
+                    link: `https://minhcuder.com/otp/verify?phone_number=${phone_number}&otp_code=${otp_code}`,
                 });
             });
             response.on('error', (error) => {
