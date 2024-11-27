@@ -66,7 +66,8 @@ export class PaymentController {
                 },
             });
 
-            let bookingPrice = booking.combo.price;
+            let bookingPrice = booking.combo?.price;
+            // bookingPrice = '8000000';
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
             }
