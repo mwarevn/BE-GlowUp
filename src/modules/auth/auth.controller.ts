@@ -1,14 +1,12 @@
 import {
-    BadRequestException,
     Body,
     ClassSerializerInterceptor,
     Controller,
-    ForbiddenException,
     Get,
     HttpStatus,
-    NotFoundException,
     Param,
     Post,
+    Query,
     Req,
     Res,
     ServiceUnavailableException,
@@ -25,9 +23,7 @@ import { LoginDTO } from 'src/modules/auth/dto/login.dto';
 import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { ForgotPasswdDTO } from 'src/modules/auth/dto/forgot-password.dto';
-import { RefreshTokenDTO } from 'src/modules/auth/dto/refresh-token.dto';
 import { JwtService } from '@nestjs/jwt';
-import path from 'path';
 
 @Controller('auth')
 export class AuthController {
@@ -228,28 +224,25 @@ export class AuthController {
         res.json({ success: true });
     }
 
-    @Post('refresh-token')
-    async getAccessTokenFromRefreshToken(@Body() refreshTokenDTO: RefreshTokenDTO, @Res() res: Response) {
+    @Get('generate-access-token')
+    async generateAccessToken(@Query() refresh_token: string, @Res() res: Response) {
         try {
-            const payload = await this.jwtService.verifyAsync(refreshTokenDTO.refresh_token, {
+            const valid_refresh_token = await this.jwtService.verifyAsync(refresh_token, {
                 secret: process.env.JWT_REFRESH_SECRET,
             });
 
-            const access_token = await this.authService.generateAccessToken({
-                id: payload.id,
-            });
+            if (valid_refresh_token) {
+                const access_token = await this.authService.generateAccessToken({
+                    id: valid_refresh_token.id,
+                });
 
-            const options = { httpOnly: true, secure: false };
-            res.cookie('access_token', access_token, options);
-
-            res.json({ success: true, access_token });
+                res.json({ success: true, access_token });
+            } else {
+                throw new UnauthorizedException();
+            }
         } catch (error) {
-            res.json({
-                success: false,
-                statusCode: HttpStatus.UNAUTHORIZED,
-                message: 'Invalid refresh token!',
-                result: null,
-            });
+            console.log(error);
+            throw new UnauthorizedException();
         }
     }
 
