@@ -32,4 +32,7 @@ export class CreateComboDto {
         example: ['67065e467578879a37b0280e'],
     })
     services: String;
+
+    @IsString()
+    total_time?: string;
 }
