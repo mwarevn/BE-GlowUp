@@ -25,6 +25,12 @@ enum Roles {
   STYLIST
 }
 
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELED
+}
+
 enum Rank {
   SILVER
   BRONZE
@@ -77,7 +83,7 @@ model Service {
   price       String
   description String
   picture     String?
-  time  Int? @default(0)
+  time        Int?     @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   deleted     Boolean  @default(false)
@@ -94,8 +100,8 @@ model Combo {
   updatedAt   DateTime  @updatedAt
   deleted     Boolean   @default(false)
   Booking     Booking[]
-  point       Int?       @default(0)
-  total_time  Int?       @default(0)
+  point       Int?      @default(0)
+  total_time  Int?      @default(0)
 }
 
 model Banner {
@@ -125,6 +131,8 @@ model Booking {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   deleted     Boolean       @default(false)
+
+  payment_status PaymentStatus @default(PENDING)
 
   customer User   @relation("CustomerBooking", fields: [customer_id], references: [id])
   stylist  User   @relation("StylistBooking", fields: [stylist_id], references: [id])
