@@ -3,6 +3,7 @@ import { PaymentService } from './payment.service';
 import { PaymentController } from './payment.controller';
 import { VnpayModule } from 'nestjs-vnpay';
 import { ignoreLogger } from 'vnpay';
+import { ExpoNotiService } from '../expo-noti/expo-noti.service';
 
 @Module({
     imports: [
@@ -28,8 +29,10 @@ import { ignoreLogger } from 'vnpay';
              */
             loggerFn: ignoreLogger, // tùy chọn
         }),
+        ExpoNotiService,
     ],
     controllers: [PaymentController],
-    providers: [PaymentService],
+    providers: [PaymentService, ExpoNotiService],
+    exports: [PaymentService],
 })
 export class PaymentModule {}
