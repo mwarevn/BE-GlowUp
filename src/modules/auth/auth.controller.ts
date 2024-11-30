@@ -197,7 +197,7 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            res.json({
+            return res.json({
                 success: false,
                 statusCode: HttpStatus.NOT_FOUND,
                 message: 'Tài khoản không tồn tại!',
@@ -217,7 +217,9 @@ export class AuthController {
             },
         );
 
-        if (!updateUser) {
+        console.log(updateUser);
+
+        if (updateUser.count !== 1) {
             throw new ServiceUnavailableException();
         }
 

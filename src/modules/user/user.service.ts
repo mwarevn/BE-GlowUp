@@ -21,10 +21,10 @@ export class UserService {
 
     // update basic profile
     async updateProfile(where, updateData) {
-        return await PrismaDB.user.update({
+        return await PrismaDB.user.updateMany({
             where,
             data: updateData,
-            select: selectFileds,
+            // select: selectFileds,
         });
     }
 
