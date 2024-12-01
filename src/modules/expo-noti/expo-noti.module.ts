@@ -3,7 +3,8 @@ import { ExpoNotiService } from './expo-noti.service';
 import { ExpoNotiController } from './expo-noti.controller';
 
 @Module({
-  controllers: [ExpoNotiController],
-  providers: [ExpoNotiService],
+    controllers: [ExpoNotiController],
+    providers: [ExpoNotiService],
+    exports: [ExpoNotiService],
 })
 export class ExpoNotiModule {}
