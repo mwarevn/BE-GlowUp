@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Req, Res, Htt
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { Request, Response } from 'express';
+import { Request, Response, Send } from 'express';
 import { get } from 'http';
 import * as moment from 'moment';
 import qs from 'qs';
@@ -10,11 +10,15 @@ import * as crypto from 'crypto';
 import { PrismaDB } from '../prisma/prisma.extensions';
 import mongoose from 'mongoose';
 import path from 'path';
+import { ExpoNotiService } from '../expo-noti/expo-noti.service';
 let querystring = require('qs');
 
 @Controller('payment')
 export class PaymentController {
-    constructor(private readonly paymentService: PaymentService) {}
+    constructor(
+        private readonly paymentService: PaymentService,
+        private readonly expoNotiService: ExpoNotiService,
+    ) {}
 
     @Get('bank-list')
     getBankList() {
@@ -124,14 +128,14 @@ export class PaymentController {
         let secretKey = process.env.VNP_HASH_SECRET;
         let vnpUrl = process.env.VNP_URL;
         let returnUrl = process.env.VNP_RETURN_URL;
-
+        const bookingId = vnp_Params['vnp_OrderType'];
         const signData = querystring.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac('sha512', secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
         if (secureHash === signed) {
-            // xử lý kết quả giao dịch ở đây
             res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
+            this.expoNotiService.sendExpoNotify('Thanh toán', 'Thanh toán thành công', 'hight', bookingId as string);
         } else {
             res.render('success', { code: '97' });
         }

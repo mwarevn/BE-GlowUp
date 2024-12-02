@@ -66,7 +66,7 @@ async function bootstrap() {
             mongoose
                 .connect(process.env.MONGODB_CONECTION_STRING)
                 .then(() => {
-                    console.log('Connected to MongoDB');
+                    console.log('MongoDB connected');
                 })
                 .catch(console.error);
         })

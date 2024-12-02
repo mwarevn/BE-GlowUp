@@ -8,9 +8,9 @@ import { addBookingQueue } from 'src/queues/mutation-booking-queue';
 import { BookingQuery } from 'src/modules/booking/constant';
 import { removeJob } from 'src/queues/check-booking-queue';
 
-const populateBookingData = async (validBooking) => {
+export const populateBookingData = async (validBooking) => {
     const services = [];
-    if (validBooking && validBooking.combo.services && validBooking.combo.services.length > 0) {
+    if (validBooking && validBooking.combo?.services && validBooking.combo?.services.length > 0) {
         services.push(
             ...(await PrismaDB.service.findMany({
                 where: {
@@ -286,13 +286,31 @@ export class BookingService {
         const newEndTime = new Date(updateBookingDto.end_time as any);
         const newStartTime = new Date(updateBookingDto.start_time as any);
 
-        if (newEndTime <= newStartTime) {
-            throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
+        const currentBooking = await PrismaDB.booking.findUnique({
+            where: { id },
+        });
+
+        if (!currentBooking) {
+            throw new Error('Booking không hợp lệ!.');
         }
 
-        if (!isDateInRange(newStartTime)) {
-            throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+        if (currentBooking.start_time !== newStartTime && currentBooking.end_time !== newEndTime) {
+            if (newEndTime <= newStartTime) {
+                throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
+            }
+
+            if (newStartTime < new Date()) {
+                throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+            }
         }
+
+        // if (newEndTime <= newStartTime) {
+        //     throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
+        // }
+
+        // if (!isDateInRange(newStartTime)) {
+        //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+        // }
 
         const stylist = await PrismaDB.user.findUnique({
             where: {

@@ -18,6 +18,7 @@ import { VnpayModule } from 'nestjs-vnpay';
 import { SocketModule } from './modules/socket/socket.module';
 import { OtpModule } from './modules/otp/otp.module';
 import { ExpoNotiModule } from './modules/expo-noti/expo-noti.module';
+import { AnalysisModule } from './modules/analysis/analysis.module';
 
 @Module({
     imports: [
@@ -37,6 +38,7 @@ import { ExpoNotiModule } from './modules/expo-noti/expo-noti.module';
         SocketModule,
         OtpModule,
         ExpoNotiModule,
+        AnalysisModule,
     ],
     controllers: [AppController],
     providers: [AppService, PrismaService],

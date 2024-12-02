@@ -11,7 +11,7 @@ export class UserService {
 
     // get unique user by codition
     async getUser(where: any) {
-        return await this.prisma.user.findFirst({ where });
+        return await PrismaDB.user.findFirst({ where });
     }
 
     // create user with input data

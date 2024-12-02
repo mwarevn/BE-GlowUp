@@ -217,8 +217,6 @@ export class AuthController {
             },
         );
 
-        console.log(updateUser);
-
         if (updateUser.count !== 1) {
             throw new ServiceUnavailableException();
         }
