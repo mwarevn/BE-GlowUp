@@ -13,7 +13,7 @@ import {
 
 export class LoginDTO {
     @IsMobilePhone('vi-VN', {})
-    @Length(10)
+    // @Length(10)
     @ApiProperty({ example: '0968999999' })
     readonly phone_number?: string;
 
