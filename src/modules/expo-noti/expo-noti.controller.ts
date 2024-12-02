@@ -6,4 +6,9 @@ import { UpdateExpoNotiDto } from './dto/update-expo-noti.dto';
 @Controller('expo-noti')
 export class ExpoNotiController {
     constructor(private readonly expoNotiService: ExpoNotiService) {}
+
+    @Get('history')
+    async findAllNotifyHistory(@Param('user_id') user_id: string) {
+        return await this.expoNotiService.findAllNotifyHistory(user_id);
+    }
 }

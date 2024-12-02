@@ -63,7 +63,9 @@ async function bootstrap() {
         .listen(PORT, () => {
             mongoose
                 .connect(process.env.MONGODB_CONECTION_STRING)
-                .then(() => {})
+                .then(() => {
+                    console.log('MongoDB connected');
+                })
                 .catch(console.error);
         })
         .then(() => {

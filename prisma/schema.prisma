@@ -38,10 +38,22 @@ enum Rank {
   DIAMON
 }
 
+model NotifyHistory {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  user_id   String    @db.ObjectId
+  title     String
+  body      Json?
+  readed    Boolean?  @default(false)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  deleted   Boolean?  @default(false)
+  user      User?     @relation(fields: [user_id], references: [id])
+}
+
 model User {
-  id               String    @id @default(auto()) @map("_id") @db.ObjectId
-  gender           Gender    @default(MALE)
-  role             Roles     @default(CUSTOMER)
+  id               String          @id @default(auto()) @map("_id") @db.ObjectId
+  gender           Gender          @default(MALE)
+  role             Roles           @default(CUSTOMER)
   full_name        String
   phone_number     String // @unique
   password         String?
@@ -50,14 +62,17 @@ model User {
   address          String?
   access_token     String?
   refresh_token    String?
-  deleted          Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  deleted          Boolean         @default(false)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
   profile          Profile?
   notify_token     String?
   // is_password_set    Boolean @default(false)
-  customerBookings Booking[] @relation("CustomerBooking")
-  stylistBookings  Booking[] @relation("StylistBooking")
+  customerBookings Booking[]       @relation("CustomerBooking")
+  stylistBookings  Booking[]       @relation("StylistBooking")
+  NotifyHistory    NotifyHistory[]
+
+  @@index([phone_number])
 }
 
 type Profile {
