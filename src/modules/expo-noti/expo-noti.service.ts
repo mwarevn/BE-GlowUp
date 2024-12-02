@@ -32,7 +32,7 @@ export class ExpoNotiService {
                     },
                     user_id: typeof user_id === 'string' ? user_id : user_id[0],
                 },
-            });
+            }); //
         } else {
             await Promise.all(
                 token.map(async (item, index) => {
