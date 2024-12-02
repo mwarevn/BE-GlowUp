@@ -61,9 +61,29 @@ export class ExpoNotiService {
     }
 
     async markRead(id: string) {
+        const existHistory = await PrismaDB.notifyHistory.findUnique({
+            where: {
+                id,
+            },
+        });
+        if (!existHistory) {
+            throw new Error('History not found');
+        }
+
         return await PrismaDB.notifyHistory.update({
             where: {
                 id,
+            },
+            data: {
+                readed: true,
+            },
+        });
+    }
+
+    async markAllRead(user_id: string) {
+        return await PrismaDB.notifyHistory.updateMany({
+            where: {
+                user_id,
             },
             data: {
                 readed: true,

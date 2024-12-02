@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException } from '@nestjs/common';
 import { ExpoNotiService } from './expo-noti.service';
 import { CreateExpoNotiDto } from './dto/create-expo-noti.dto';
 import { UpdateExpoNotiDto } from './dto/update-expo-noti.dto';
@@ -10,5 +10,18 @@ export class ExpoNotiController {
     @Get('history')
     async findAllNotifyHistory(@Param('user_id') user_id: string) {
         return await this.expoNotiService.findAllNotifyHistory(user_id);
+    }
+
+    @Patch('history/mark-read/:id')
+    async markRead(@Param('id') id: string) {
+        if (!id) {
+            throw new Error('Invalid id'); //
+        }
+
+        try {
+            return await this.expoNotiService.markRead(id);
+        } catch (error) {
+            throw new BadRequestException(error.message);
+        }
     }
 }
