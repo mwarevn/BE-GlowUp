@@ -24,4 +24,17 @@ export class ExpoNotiController {
             throw new BadRequestException(error.message);
         }
     }
+
+    @Patch('history/mark-all-read/:id')
+    async markAllRead(@Param('id') id: string) {
+        if (!id) {
+            throw new Error('Invalid id'); //
+        }
+
+        try {
+            return await this.expoNotiService.markAllRead(id);
+        } catch (error) {
+            throw new BadRequestException(error.message);
+        }
+    }
 }
