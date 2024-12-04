@@ -56,7 +56,7 @@ export class AuthController {
         try {
             const validUser = await this.authService.loginSystem(loginDto, res);
             if (!validUser || !validUser.password) {
-                res.status(HttpStatus.UNAUTHORIZED).json({
+                return res.status(HttpStatus.UNAUTHORIZED).json({
                     success: false,
                     statusCode: HttpStatus.UNAUTHORIZED,
                     message: 'Số điện thoại hoặc mật khẩu không chính xác!',
@@ -78,7 +78,7 @@ export class AuthController {
 
             res.cookie('access_token', access_token, options);
             res.cookie('refresh_token', refresh_token, options);
-
+            //
             res.json({
                 refresh_token,
                 access_token,
