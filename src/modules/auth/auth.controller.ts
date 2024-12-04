@@ -40,7 +40,7 @@ export class AuthController {
 
             res.json({ success: true, result: createdAccount });
         } catch (error) {
-            res.json({
+            res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -56,7 +56,7 @@ export class AuthController {
         try {
             const validUser = await this.authService.loginSystem(loginDto, res);
             if (!validUser || !validUser.password) {
-                res.json({
+                return res.status(HttpStatus.UNAUTHORIZED).json({
                     success: false,
                     statusCode: HttpStatus.UNAUTHORIZED,
                     message: 'Số điện thoại hoặc mật khẩu không chính xác!',
@@ -78,7 +78,7 @@ export class AuthController {
 
             res.cookie('access_token', access_token, options);
             res.cookie('refresh_token', refresh_token, options);
-
+            //
             res.json({
                 refresh_token,
                 access_token,
@@ -86,7 +86,7 @@ export class AuthController {
             });
         } catch (error) {
             // console.log(error);
-            res.json({
+            res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: 'Số điện thoại hoặc mật khẩu không chính xác!',
@@ -121,7 +121,7 @@ export class AuthController {
 
         // only self can change the passwd
         if (user['id'] !== id) {
-            return res.json({
+            res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.FORBIDDEN,
                 message: 'Không có quyền thay đổi mật khẩu của người khác !',
@@ -136,7 +136,7 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            res.json({
+            res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.NOT_FOUND,
                 message: 'yêu cầu lỗi, tài khoản này không tồn tại hoặc đã bị xoá!',
@@ -149,7 +149,7 @@ export class AuthController {
         const isValidPasswd = await this.authService.verifyPassword(changePasswdDTO.current_password, exitstsUser.password);
 
         if (!isValidPasswd) {
-            res.json({
+            res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: 'Mật khẩu hiện tại không chính xác!',
@@ -160,7 +160,7 @@ export class AuthController {
 
         // ignore same passwd
         if (changePasswdDTO.current_password === changePasswdDTO.new_password) {
-            res.json({
+            res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: 'Mật khẩu này đang được sử dụng',
@@ -197,7 +197,7 @@ export class AuthController {
         });
 
         if (!exitstsUser) {
-            return res.json({
+            return res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.NOT_FOUND,
                 message: 'Tài khoản không tồn tại!',
