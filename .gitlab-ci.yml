@@ -9,17 +9,15 @@ deploy:
   stage: deploy
   script:
     - echo "Deploying to VPS..."
-    - ssh -p 2018 root@103.97.126.52 << 'EOF'
-        cd ~/be-datn-nestjs
-        echo "Removing old node_modules..."
-        rm -rf node_modules/ # Xóa thư mục node_modules cũ
-        echo "Pulling latest code..."
-        git pull # Pull mã nguồn mới
-        echo "Installing dependencies..."
-        npm install # Cài đặt dependencies mới
-        echo "Starting the server..."
-        npx prisma db push
-        npm run start # Chạy server
-      EOF
+    - ssh -p 2018 root@103.97.126.52 "cd ~/be-datn-nestjs && \
+        echo 'Removing old node_modules...' && \
+        rm -rf node_modules/ && \
+        echo 'Pulling latest code...' && \
+        git pull && \
+        echo 'Installing dependencies...' && \
+        npm install && \
+        npx prisma db push && \
+        echo 'Starting the server...' && \
+        npm run start"
   only:
     - main # Chỉ deploy khi có thay đổi trên nhánh main
