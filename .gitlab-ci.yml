@@ -4,7 +4,7 @@ stages:
     - deploy
 
 # Sử dụng image Node.js
-image: node:16 # Hoặc phiên bản Node.js mà bạn cần
+image: node:20 # Hoặc phiên bản Node.js mà bạn cần
 
 # Step setup_env
 setup_env:
