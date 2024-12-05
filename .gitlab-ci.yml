@@ -9,6 +9,8 @@ deploy:
   stage: deploy
   script:
     - echo "Deploying to VPS..."
+    - mkdir -p ~/.ssh # Tạo thư mục .ssh nếu chưa có
+    - ssh-keyscan -p 2018 103.97.126.52 >> ~/.ssh/known_hosts # Thêm khóa máy chủ vào known_hosts
     - ssh -p 2018 root@103.97.126.52 "cd ~/be-datn-nestjs && \
         echo 'Removing old node_modules...' && \
         rm -rf node_modules/ && \
