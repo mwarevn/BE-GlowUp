@@ -1,38 +1,25 @@
 stages:
-    - setup_env
-    - build
-    - deploy
+  - deploy
 
 # Sử dụng image Node.js
 image: node:20 # Hoặc phiên bản Node.js mà bạn cần
 
-# Step setup_env
-setup_env:
-    stage: setup_env
-    script:
-        - echo "Setting up environment..."
-        - ls # Kiểm tra các file trong thư mục hiện tại
-        - rm -rf node_modules/ # Remove old node_modules folder
-        - cp example.env .env # Copy example.env to .env
-        - npm install # Install dependencies
-        - npx prisma db push # Push database schema
-
-# Step build
-build:
-    stage: build
-    script:
-        - echo "Running builds..."
-        - npm run build # Không cần cd vì mã nguồn đã ở thư mục làm việc hiện tại
-
-    artifacts:
-        paths:
-            - dist/ # Stored build files
-
 # Step deploy
 deploy:
-    stage: deploy
-    script:
-        - echo "Deploying to VPS..."
-        - ssh -p 2018 root@103.97.126.52 'cd ~/be-datn-nestjs && git pull && npm install && npm run start'
-    only:
-        - main # Only deploy when push to main branch
+  stage: deploy
+  script:
+    - echo "Deploying to VPS..."
+    - ssh -p 2018 root@103.97.126.52 << 'EOF'
+        cd ~/be-datn-nestjs
+        echo "Removing old node_modules..."
+        rm -rf node_modules/ # Xóa thư mục node_modules cũ
+        echo "Pulling latest code..."
+        git pull # Pull mã nguồn mới
+        echo "Installing dependencies..."
+        npm install # Cài đặt dependencies mới
+        echo "Starting the server..."
+        npx prisma db push
+        npm run start # Chạy server
+      EOF
+  only:
+    - main # Chỉ deploy khi có thay đổi trên nhánh main
