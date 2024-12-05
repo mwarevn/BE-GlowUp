@@ -11,8 +11,7 @@ setup_env:
     stage: setup_env
     script:
         - echo "Setting up environment..."
-        - ls ~
-        - cd ~/be-datn-nestjs # Chuyển đến thư mục dự án
+        - ls # Kiểm tra các file trong thư mục hiện tại
         - rm -rf node_modules/ # Remove old node_modules folder
         - cp example.env .env # Copy example.env to .env
         - npm install # Install dependencies
@@ -23,8 +22,7 @@ build:
     stage: build
     script:
         - echo "Running builds..."
-        - cd ~/be-datn-nestjs # Move to project directory
-        - npm run build
+        - npm run build # Không cần cd vì mã nguồn đã ở thư mục làm việc hiện tại
 
     artifacts:
         paths:
