@@ -9,7 +9,7 @@ setup_env:
     script:
         - echo "Setting up environment..."
         - ls ~
-        - cd ~/be-datn-nestjs
+        # - cd ~/be-datn-nestjs
         - rm -rf node_modules/ # Remove old node_modules folder
         - cp example.env .env # Copy example.env to .env
         - npm install # Install dependencies
