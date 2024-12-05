@@ -1,0 +1,36 @@
+stages:
+    - setup_env
+    - build
+    - deploy
+
+# Step setup_env
+setup_env:
+    stage: setup_env
+    script:
+        - echo "Setting up environment..."
+        - cd ~/be-datn-nestjs
+        - rm -rf node_modules/ # Remove old node_modules folder
+        - cp example.env .env # Copy example.env to .env
+        - npm install # Install dependencies
+        - npx prisma db push # Push database schema
+
+# Step build
+build:
+    stage: build
+    script:
+        - echo "Running builds..."
+        - cd ~/be-datn-nestjs # Move to project directory
+        - npm run build
+
+    artifacts:
+        paths:
+            - dist/ # Stored build files
+
+# Step deploy
+deploy:
+    stage: deploy
+    script:
+        - echo "Deploying to VPS..."
+        - ssh -p 2018 root@103.97.126.52 'cd ~/be-datn-nestjs && git pull && npm install && npm run start'
+    only:
+        - main # Only deploy when push to main branch
