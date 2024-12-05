@@ -3,13 +3,16 @@ stages:
     - build
     - deploy
 
+# Sử dụng image Node.js
+image: node:16 # Hoặc phiên bản Node.js mà bạn cần
+
 # Step setup_env
 setup_env:
     stage: setup_env
     script:
         - echo "Setting up environment..."
         - ls ~
-        # - cd ~/be-datn-nestjs
+        - cd ~/be-datn-nestjs # Chuyển đến thư mục dự án
         - rm -rf node_modules/ # Remove old node_modules folder
         - cp example.env .env # Copy example.env to .env
         - npm install # Install dependencies
