@@ -51,7 +51,7 @@ export class AuthController {
     }
 
     @Post('login')
-    @UseInterceptors(ClassSerializerInterceptor)
+    // @UseInterceptors(ClassSerializerInterceptor)
     async loginSystem(@Body() loginDto: LoginDTO, @Res() res: Response) {
         try {
             const validUser = await this.authService.loginSystem(loginDto, res);

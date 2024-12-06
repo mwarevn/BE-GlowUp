@@ -33,6 +33,6 @@ export class CreateComboDto {
     })
     services: String;
 
-    @IsString()
+    // @IsString()
     total_time?: string;
 }

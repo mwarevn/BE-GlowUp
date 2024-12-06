@@ -311,17 +311,21 @@ export class BookingService {
         // if (!isDateInRange(newStartTime)) {
         //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         // }
+        console.log(updateBookingDto);
 
-        const stylist = await PrismaDB.user.findUnique({
-            where: {
-                id: updateBookingDto.stylist_id as any,
-                role: Roles.STYLIST,
-            },
-            select: { profile: true },
-        });
+        if (updateBookingDto.stylist_id && updateBookingDto.stylist_id !== currentBooking.stylist_id) {
+            console.log('coin card');
+            const stylist = await PrismaDB.user.findUnique({
+                where: {
+                    id: updateBookingDto.stylist_id as any,
+                    role: Roles.STYLIST,
+                },
+                select: { profile: true },
+            });
 
-        if (stylist == null || !stylist.profile || stylist.profile.stylist.isWorking === false) {
-            throw new Error('Stylist này không còn làm việc!.');
+            if (stylist == null || !stylist.profile || stylist.profile.stylist.isWorking === false) {
+                throw new Error('Stylist này không còn làm việc!.');
+            }
         }
 
         const job = await addBookingQueue({ ...updateBookingDto, id }, 'update');

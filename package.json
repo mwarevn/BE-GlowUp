@@ -45,6 +45,7 @@
         "cookie-parser": "^1.4.6",
         "crypto": "^1.0.1",
         "csurf": "^1.11.0",
+        "decrypt": "^0.0.1",
         "express": "^4.21.1",
         "firebase": "^10.13.2",
         "firebase-admin": "^12.5.0",

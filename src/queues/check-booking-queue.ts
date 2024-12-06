@@ -1,6 +1,5 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
-import { notifyUser } from 'src/main';
 import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
