@@ -1,5 +1,7 @@
 # deploy.sh
 source ~/.bashrc
+rm -rf be-datn-nestjs
+git clone git@gitlab.com:mwarevn/be-datn-nestjs.git
 cd be-datn-nestjs
 ls -a
 npm -v
