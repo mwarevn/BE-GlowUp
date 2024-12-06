@@ -6,9 +6,10 @@ cd be-datn-nestjs
 ls -a
 npm -v
 node -v
-rm -rf node_modules
 git checkout develop
+rm -rf node_modules
 git pull
 npm install
+cat example.env > .env
 npx prisma db push
 npm run dev
