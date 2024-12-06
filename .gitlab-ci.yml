@@ -38,4 +38,4 @@ deploy:
         npx prisma db push  && \
         npm run dev EOF
   only:
-    - develop
+    - main
