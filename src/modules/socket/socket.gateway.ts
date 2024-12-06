@@ -14,6 +14,7 @@ export class SocketGateway {
 
     handleConnection(client: Socket) {
         console.log(`Client connected: ${client.id}`);
+        this.broadcastNotification({ type: 'success' });
     }
 
     handleDisconnect(client: Socket) {
