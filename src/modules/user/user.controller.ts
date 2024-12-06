@@ -129,11 +129,11 @@ export class UserController {
     ) {
         if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
 
-        const user = req['user'];
-
-        if (user['id'] !== id) {
-            throw new ForbiddenException();
-        }
+        // const user = req['user'];
+        // console.log(user);
+        // if (user['id'] !== id) {
+        //     throw new ForbiddenException();
+        // }
 
         try {
             const imgData = await uploadSingleImageThirdParty(req);

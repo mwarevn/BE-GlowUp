@@ -22,7 +22,7 @@ export class ComboService {
         const combo = await this.prismaService.combo.create({
             data: {
                 ...data,
-                total_time: parseInt(createComboDto.total_time) || 0,
+                total_time: createComboDto.total_time || 0,
                 point: parseInt(createComboDto.point),
                 services: Array.from(set) as string[],
             },
@@ -122,7 +122,7 @@ export class ComboService {
             },
             data: {
                 ...data,
-                total_time: parseInt(updateComboDto.total_time) || 0,
+                total_time: updateComboDto.total_time || 0,
                 point: parseInt(updateComboDto.point),
                 services: Array.from(set) as string[],
             },
