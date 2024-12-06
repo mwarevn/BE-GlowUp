@@ -21,6 +21,6 @@ deploy:
     - apt-get install -y openssh-client
     - eval $(ssh-agent -s)
     - ssh-add <(echo "$SSH_PRIVATE_KEY")
-    - ssh -o StrictHostKeyChecking=no -p 2018 root@103.97.126.52 " cd be-datn-nestjs && rm -rf node_modules && git pull origin main && npm install && npx prisma npx prisma db push  && npm run dev"
+    - ssh -o StrictHostKeyChecking=no -p 2018 root@103.97.126.52 " cd be-datn-nestjs && ls -a && rm -rf node_modules && git pull origin main && npm install && npx prisma npx prisma db push  && npm run dev"
   only:
     - main
