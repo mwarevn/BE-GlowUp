@@ -135,7 +135,7 @@ export class PaymentController {
 
         if (secureHash === signed) {
             res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
-            this.expoNotiService.sendExpoNotify('Thanh toán', 'Thanh toán thành công', 'hight', bookingId as string);
+            this.expoNotiService.sendExpoNotify('Thanh toán', 'Thanh toán thành công', 'success', 'hight', bookingId as string);
         } else {
             res.render('success', { code: '97' });
         }
