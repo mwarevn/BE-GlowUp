@@ -129,7 +129,7 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
         });
 
         broadcastNotification({
-            type: 'success',
+            type: 'default',
             msg: 'Khách hàng đã đặt lịch hẹn mới!',
         });
 
