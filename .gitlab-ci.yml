@@ -7,6 +7,14 @@ image: node:20 # Hoặc phiên bản Node.js mà bạn cần
 # Step deploy
 deploy:
   stage: deploy
+
+  # before_script:
+  #       - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  #       - eval $(ssh-agent -s)
+  #       - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  #       - mkdir -p ~/.ssh
+  #       - echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
   script:
     - echo "Deploying to VPS..."
     - apt-get update -y
