@@ -47,7 +47,7 @@ checkBookingQueue.process(8, async (job: any) => {
         const token = user?.notify_token;
 
         if (token) {
-            expoNotiService.sendExpoNotify('Booking canceled', 'Time out!', 'hight', token, user.id);
+            expoNotiService.sendExpoNotify('Booking canceled', 'Time out!', 'error', 'hight', token, user.id);
         }
 
         // send notification to user

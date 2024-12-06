@@ -4,6 +4,7 @@ export class ExpoNotiService {
     async sendExpoNotify(
         title: string,
         message: string,
+        type: 'success' | 'error' | 'warning' | 'info' | 'confirmation' | 'reminder',
         priority: 'hight' | 'medium' | 'low',
         token: string | string[],
         user_id?: string | string[],

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { Roles } from '@prisma/client';
 import { selectFileds } from 'src/common/utils';
@@ -22,6 +21,9 @@ export class CustomerService {
             data: {
                 ...createCustomerDto,
                 role: Roles.CUSTOMER,
+                profile: {
+                    customer: {},
+                },
             },
             select: selectFileds,
         });

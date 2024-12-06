@@ -24,6 +24,9 @@ export class StylistService {
             data: {
                 ...createStylistDto,
                 role: Roles.STYLIST,
+                profile: {
+                    stylist: {},
+                },
             },
             select: selectFileds,
         });

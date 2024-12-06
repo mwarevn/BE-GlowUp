@@ -25,10 +25,13 @@ async function bootstrap() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
-
+    //
     app.useStaticAssets(join(__dirname, '..', 'public'));
     // app protections
-    app.enableCors();
+    app.enableCors({
+        origin: ['http://localhost:3001', 'https://fastsave.live', 'https://minhcuder.xyz'],
+        credentials: true,
+    });
     // app.use(csurf()); //
     // app.use(helmet());
 

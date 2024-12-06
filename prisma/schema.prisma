@@ -75,6 +75,13 @@ model User {
   @@index([phone_number])
 }
 
+enum CustomerStatus {
+  InService
+  WatingForService
+  BeingServed
+  NoAppointments
+}
+
 type Profile {
   customer CustomerProfile? // Embedded Customer profile
   stylist  StylistProfile? // Embedded Stylist profile
@@ -82,14 +89,15 @@ type Profile {
 }
 
 type CustomerProfile {
-  rank    Rank @default(BRONZE)
-  rewards Int  @default(0)
+  rank    Rank           @default(BRONZE)
+  rewards Int            @default(0)
+  status  CustomerStatus @default(NoAppointments)
 }
 
 type StylistProfile {
-  experience String  @default("1 năm")
-  reviews    Int     @default(0)
-  isWorking  Boolean @default(true)
+  experience String?  @default("1 năm")
+  reviews    Int?     @default(0)
+  isWorking  Boolean? @default(true)
 }
 
 model Service {
