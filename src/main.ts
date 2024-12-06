@@ -7,7 +7,7 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
 import { join } from 'path';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as bodyParsers from 'body-parser/common';
+// import * as bodyParsers from 'body-parser/common';
 import './workers/check-booking.worker';
 import { SocketGateway } from 'src/modules/socket/socket.gateway';
 let socketGateway: SocketGateway;
