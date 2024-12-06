@@ -12,4 +12,4 @@ git pull
 npm install
 cat example.env > .env
 npx prisma db push
-npm run dev
+npm run dev &
