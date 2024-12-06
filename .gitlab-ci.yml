@@ -37,6 +37,6 @@ deploy:
         npm install
         npx prisma db push 
         npm run dev
-EOF
+      EOF
   only:
     - main
