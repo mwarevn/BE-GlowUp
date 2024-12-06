@@ -1,0 +1,32 @@
+
+> be-minhcuder-blog@0.0.1 dev
+> nest start --watch
+
+[2J[3J[H[[90m12:51:15 AM[0m] Starting compilation in watch mode...
+
+[[90m12:51:17 AM[0m] Found 0 errors. Watching for file changes.
+
+[31m[Nest] 99709  - [39m12/07/2024, 12:51:18 AM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3000[39m
+node:internal/errors:496
+    ErrorCaptureStackTrace(err);
+    ^
+
+Error: listen EADDRINUSE: address already in use :::3000
+    at __node_internal_captureLargerStackTrace (node:internal/errors:496:5)
+    at __node_internal_uvExceptionWithHostPort (node:internal/errors:593:12)
+    at Server.setupListenHandle [as _listen2] (node:net:1817:16)
+    at listenInCluster (node:net:1865:12)
+    at Server.listen (node:net:1953:7)
+    at ExpressAdapter.listen (/Users/mwarevn/Workspace/DATN-BE/nestjs-api-server/node_modules/@nestjs/platform-express/adapters/express-adapter.js:95:32)
+    at /Users/mwarevn/Workspace/DATN-BE/nestjs-api-server/node_modules/@nestjs/core/nest-application.js:183:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (/Users/mwarevn/Workspace/DATN-BE/nestjs-api-server/node_modules/@nestjs/core/nest-application.js:173:16)
+    at bootstrap (/Users/mwarevn/Workspace/DATN-BE/nestjs-api-server/src/main.ts:66:5) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+
+Node.js v18.20.4

@@ -12,5 +12,5 @@ git pull
 npm install
 cat example.env > .env
 npx prisma db push
-kill -9 $(lsof -t -i :3000) # kill old process
-npm run dev &
+kill $(lsof -t -i :3000) # kill old process
+npm run dev > /dev/null 2>&1
