@@ -7,20 +7,24 @@ image: node:20 # Hoặc phiên bản Node.js mà bạn cần
 # Step deploy
 deploy:
   stage: deploy
-
-  # before_script:
-  #       - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  #       - eval $(ssh-agent -s)
-  #       - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-  #       - mkdir -p ~/.ssh
-  #       - echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-
   script:
     - echo "Deploying to VPS..."
     - apt-get update -y
     - apt-get install -y openssh-client
     - eval $(ssh-agent -s)
     - ssh-add <(echo "$SSH_PRIVATE_KEY")
-    - ssh -o StrictHostKeyChecking=no -p 2018 root@103.97.126.52 " cd be-datn-nestjs && ls -a && rm -rf node_modules && git pull origin main && npm install && npx prisma npx prisma db push  && npm run dev"
+    - ssh -o StrictHostKeyChecking=no -p 2018 root@103.97.126.52 << 'EOF'
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
+        nvm use 20 
+        cd be-datn-nestjs
+        ls -a
+        rm -rf node_modules
+        git pull origin main
+        npm install
+        npx prisma db push
+        npm run dev
+      EOF
   only:
     - main
