@@ -1,6 +1,7 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
 import { selectFileds } from 'src/common/utils';
+import { broadcastNotification } from 'src/main';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
 const bookingQueue = new Queue('mutation-booking-queue', {
@@ -125,6 +126,11 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
                     select: selectFileds,
                 },
             },
+        });
+
+        broadcastNotification({
+            type: 'success',
+            msg: 'Khách hàng đã đặt lịch hẹn mới!',
         });
 
         return { success: true, data: newBooking };

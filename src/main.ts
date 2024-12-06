@@ -87,7 +87,7 @@ async function bootstrap() {
 
 bootstrap();
 
-// noti
+// notify
 export function notifyUser(userId: string, notification: any) {
     if (socketGateway) {
         socketGateway.sendNotificationToUser(userId, notification);
