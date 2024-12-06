@@ -9,17 +9,17 @@ deploy:
   stage: deploy
   script:
     - echo "Deploying to VPS..."
-    - mkdir -p ~/.ssh # Tạo thư mục .ssh nếu chưa có
-    - ssh-keyscan -p 2018 103.97.126.52 >> ~/.ssh/known_hosts # Thêm khóa máy chủ vào known_hosts
-    - ssh -p 2018 root@103.97.126.52 "cd ~/be-datn-nestjs && \
-        echo 'Removing old node_modules...' && \
-        rm -rf node_modules/ && \
-        echo 'Pulling latest code...' && \
-        git pull && \
-        echo 'Installing dependencies...' && \
+    - apt-get update -y
+    - apt-get install -y openssh-client
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$SSH_PRIVATE_KEY")
+    - ssh -o -p 2018 StrictHostKeyChecking=no root@103.97.126.52 "
+        cd be-datn-nestjs && \
+        rm -rf node_modules && \
+        git pull origin main && \
         npm install && \
-        npx prisma db push && \
-        echo 'Starting the server...' && \
-        npm run start"
+        npx prisma npx prisma db push && \
+        npm run dev
+      "
   only:
-    - main # Chỉ deploy khi có thay đổi trên nhánh main
+    - main
