@@ -9,7 +9,7 @@ import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import './workers/check-booking.worker';
 import { SocketGateway } from 'src/modules/socket/socket.gateway';
-import { applyGuard } from 'src/common/guards/nest.guard';
+// import { applyGuard } from 'src/common/guards/nest.guard';
 
 let socketGateway: SocketGateway;
 import * as mongoose from 'mongoose';
@@ -65,7 +65,7 @@ async function bootstrap() {
 
     await app
         .listen(PORT, () => {
-            applyGuard();
+            // applyGuard();
             mongoose
                 .connect(process.env.MONGODB_CONECTION_STRING)
                 .then(() => {
