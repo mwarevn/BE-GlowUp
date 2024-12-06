@@ -15,6 +15,7 @@ deploy:
     - eval $(ssh-agent -s)
     - ssh-add <(echo "$SSH_PRIVATE_KEY")
     - ls -a
+    - ssh -tt -o StrictHostKeyChecking=no -p 2018 root@103.97.126.52 'bash -s' < deploy.sh
 #     - ssh -tt -o StrictHostKeyChecking=no -p 2018 root@103.97.126.52 <<- 'EOF'
 # cd be-datn-nestjs
 # ls -a
