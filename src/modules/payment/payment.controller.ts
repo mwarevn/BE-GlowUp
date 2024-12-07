@@ -134,10 +134,11 @@ export class PaymentController {
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
 
         if (secureHash === signed) {
-            res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
-            this.expoNotiService.sendExpoNotify('Thanh toán', 'Thanh toán thành công', 'success', 'hight', bookingId as string);
+            // res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
+            // this.expoNotiService.sendExpoNotify('Thanh toán', 'Thanh toán thành công', 'success', 'hight', bookingId as string);
+            res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
-            res.render('success', { code: '97' });
+            res.json({ status: 'success', code: '97' });
         }
     }
 }
