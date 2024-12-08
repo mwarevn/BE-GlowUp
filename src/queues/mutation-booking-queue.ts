@@ -2,6 +2,7 @@ import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
 import { selectFileds } from 'src/common/utils';
 import { broadcastNotification } from 'src/main';
+import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
 const bookingQueue = new Queue('mutation-booking-queue', {
@@ -18,6 +19,7 @@ bookingQueue.process(1, async (job: any) => {
     const newEndTime = new Date(payload.end_time as any);
     const newStartTime = new Date(payload.start_time as any);
     const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } };
+
     try {
         const [conflictingStylist, conflictingCustomer] = await Promise.all([
             // Check stylist conflict
@@ -42,18 +44,23 @@ bookingQueue.process(1, async (job: any) => {
             case 'create':
                 return await handleCreateBooking(payload, conflictingStylist, conflictingCustomer);
             case 'update':
+                console.log('Update booking');
                 return await handleUpdateBooking(payload, conflictingStylist, conflictingCustomer);
             default:
                 return { success: false, message: 'Invalid action!' };
         }
     } catch (error) {
+        console.log(error);
         return { success: false, message: error.message };
     }
 });
 
+const notifyExpoService = new ExpoNotiService();
+
 async function handleUpdateBooking(payload, conflictingStylist, conflictingCustomer) {
     const id = payload.id;
     delete payload.id;
+
     try {
         if (conflictingStylist.length > 0 && conflictingStylist[0].id !== id) {
             return {
@@ -80,7 +87,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
                     },
                 },
                 customer: {
-                    select: selectFileds,
+                    select: { ...selectFileds, notify_token: true },
                 },
                 stylist: {
                     select: selectFileds,
@@ -88,7 +95,22 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
             },
         });
 
-        return { success: true, data: newBooking };
+        if (newBooking) {
+            if (payload.status === BookingStatus.CONFIRMED && newBooking.customer?.notify_token) {
+                notifyExpoService.sendExpoNotify(
+                    'Lịch hẹn đã được xác nhận!',
+                    'Lịch hẹn đã được xác nhận!',
+                    'success',
+                    'hight',
+                    newBooking.customer.notify_token,
+                    newBooking.customer_id,
+                );
+            }
+
+            return { success: true, data: newBooking };
+        } else {
+            return { success: false, message: 'Không tìm thấy booking này!' };
+        }
     } catch (error) {
         return { success: false, message: error.message };
     }
@@ -140,5 +162,6 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
 }
 
 export function addBookingQueue(data: any, action: string) {
+    console.log('[+] Added Booking Queue...');
     return bookingQueue.add({ data, action });
 }
