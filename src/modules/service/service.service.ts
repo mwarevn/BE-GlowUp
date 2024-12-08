@@ -41,7 +41,19 @@ export class ServiceService {
         return service;
     }
 
-    remove(id: string) {
+    async remove(id: string) {
+        const combo = await PrismaDB.combo.findMany({
+            where: {
+                services: {
+                    has: id,
+                },
+            },
+        });
+
+        if (combo.length > 0) {
+            throw new HttpException('Dịch vụ đã tồn tại trong trong combo', HttpStatus.BAD_REQUEST);
+        }
+
         return PrismaDB.service.delete({
             where: { id },
         });
