@@ -70,11 +70,15 @@ export class PaymentController {
                 },
             });
 
-            let bookingPrice = booking.combo?.price;
-            // bookingPrice = '8000000';
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
             }
+
+            let bookingPrice = booking.combo?.price;
+            // bookingPrice = '8000000';
+            // if (!booking) {
+            //     throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
+            // }
 
             const orderId = moment(date).format('DDHHmmss');
             const amount = parseFloat(bookingPrice) * 100;
@@ -105,6 +109,7 @@ export class PaymentController {
             vnp_Params['vnp_SecureHash'] = signed;
             const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
             res.status(200).json({ paymentUrl });
+            // res.redirect(paymentUrl);
         } catch (error) {
             res.status(500).json({
                 success: false,
@@ -143,15 +148,19 @@ export class PaymentController {
 
         if (secureHash === signed) {
             // res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
-            this.expoNotiService.sendExpoNotify(
-                'Thanh toán',
-                'Thanh toán thành công',
-                'success',
-                'hight',
-                booking.customer.notify_token,
-                booking.customer_id,
-            );
-            res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
+            // if (booking.customer.notify_token) {
+            //     this.expoNotiService.sendExpoNotify(
+            //         'Thanh toán',
+            //         'Thanh toán thành công',
+            //         'success',
+            //         'hight',
+            //         booking.customer.notify_token,
+            //         booking.customer_id,
+            //     );
+            // }
+
+            res.render('payment-success');
+            // res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
             res.json({ status: 'success', code: '97' });
         }
