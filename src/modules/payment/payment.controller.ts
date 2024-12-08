@@ -137,14 +137,6 @@ export class PaymentController {
         const signData = querystring.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac('sha512', secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
-        const booking = await PrismaDB.booking.findUnique({
-            where: {
-                id,
-            },
-            include: {
-                customer: true,
-            },
-        });
 
         if (secureHash === signed) {
             // res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
@@ -159,7 +151,26 @@ export class PaymentController {
             //     );
             // }
 
-            res.render('payment-success');
+            try {
+                const booking = await PrismaDB.booking.update({
+                    where: {
+                        id,
+                    },
+                    data: {
+                        payment_status: 'PAID',
+                    },
+                });
+                res.render('payment-success', { vnp_Params });
+            } catch (error) {
+                res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: error.message,
+                    result: null,
+                    path: '/payment/vnpay_return',
+                });
+            }
+
             // res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
             res.json({ status: 'success', code: '97' });
