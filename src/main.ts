@@ -25,6 +25,9 @@ async function bootstrap() {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieParser());
+
+    app.setBaseViewsDir(join(__dirname, '..', 'src/views'));
+    app.setViewEngine('ejs');
     //
     app.useStaticAssets(join(__dirname, '..', 'public'));
     // app protections
