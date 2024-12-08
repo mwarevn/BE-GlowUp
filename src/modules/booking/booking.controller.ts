@@ -14,12 +14,12 @@ export class BookingController {
     async cancelBooking(@Query('phone') phone: string, @Query('booking_id') booking_id: string, @Res() res: Response) {
         try {
             const booking = await this.bookingService.cancelBooking(phone, booking_id);
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 result: booking,
             });
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
+            return res.status(HttpStatus.BAD_REQUEST).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -77,7 +77,7 @@ export class BookingController {
             result: booking,
         });
     }
-
+    //
     @Patch(':id')
     async update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto, @Res() res: Response) {
         try {

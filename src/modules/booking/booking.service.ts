@@ -7,6 +7,7 @@ import { BookingStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
 import { BookingQuery } from 'src/modules/booking/constant';
 import { removeJob } from 'src/queues/check-booking-queue';
+import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 
 export const populateBookingData = async (validBooking) => {
     const services = [];
@@ -39,17 +40,27 @@ export const populateBookingData = async (validBooking) => {
 
 @Injectable()
 export class BookingService {
+    constructor(private expoNotiService: ExpoNotiService) {}
+
     async cancelBooking(phone: string, booking_id: string) {
-        const booking = await PrismaDB.booking.findFirst({
+        const booking = await PrismaDB.booking.findUnique({
             where: {
                 id: booking_id,
+                // customer: {
+                //     phone_number: phone,
+                // },
+            },
+            include: {
                 customer: {
-                    phone_number: phone,
+                    select: {
+                        notify_token: true,
+                        ...selectFileds,
+                    },
                 },
             },
         });
 
-        if (booking == null) {
+        if (!booking) {
             throw new Error('Không tìm thấy booking!.');
         }
 
@@ -58,6 +69,21 @@ export class BookingService {
         }
 
         removeJob(booking_id);
+
+        const notify_token = booking.customer?.notify_token;
+
+        // console.log(booking);
+        if (notify_token) {
+            // console.log(notify_token);
+            this.expoNotiService.sendExpoNotify(
+                'Booking đã bị hủy',
+                'Đã hủy booking của bạn',
+                'success',
+                'hight',
+                booking.customer.notify_token,
+                booking.customer_id,
+            );
+        }
 
         return await PrismaDB.booking.update({
             where: {
@@ -225,6 +251,8 @@ export class BookingService {
             },
         });
 
+        console.log(booking);
+
         return await Promise.all(booking.map(async (item) => await populateBookingData(item)));
     }
 
@@ -311,7 +339,7 @@ export class BookingService {
         // if (!isDateInRange(newStartTime)) {
         //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         // }
-        console.log(updateBookingDto);
+        // console.log(updateBookingDto);
 
         if (updateBookingDto.stylist_id && updateBookingDto.stylist_id !== currentBooking.stylist_id) {
             console.log('coin card');

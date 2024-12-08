@@ -70,15 +70,19 @@ export class PaymentController {
                 },
             });
 
-            let bookingPrice = booking.combo?.price;
-            // bookingPrice = '8000000';
             if (!booking) {
                 throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
             }
 
+            let bookingPrice = booking.combo?.price;
+            // bookingPrice = '8000000';
+            // if (!booking) {
+            //     throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
+            // }
+
             const orderId = moment(date).format('DDHHmmss');
             const amount = parseFloat(bookingPrice) * 100;
-            console.log(amount);
+
             const bankCode = body.bankCode;
             let vnp_Params: any = {
                 vnp_Version: '2.1.0',
@@ -90,7 +94,7 @@ export class PaymentController {
                 vnp_OrderInfo: 'Thanh toan cho ma GD:' + orderId,
                 vnp_OrderType: bookingId,
                 vnp_Amount: amount,
-                vnp_ReturnUrl: returnUrl,
+                vnp_ReturnUrl: `${returnUrl}/${bookingId}/`,
                 vnp_IpAddr: ipAddr,
                 vnp_CreateDate: createDate,
             };
@@ -98,12 +102,14 @@ export class PaymentController {
                 vnp_Params['vnp_BankCode'] = bankCode;
             }
             vnp_Params = this.sortObject(vnp_Params);
+            console.log(vnp_Params);
             let signData = querystring.stringify(vnp_Params, { encode: false });
             const hmac = crypto.createHmac('sha512', secretKey);
             const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
             vnp_Params['vnp_SecureHash'] = signed;
             const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
             res.status(200).json({ paymentUrl });
+            // res.redirect(paymentUrl);
         } catch (error) {
             res.status(500).json({
                 success: false,
@@ -115,29 +121,45 @@ export class PaymentController {
         }
     }
 
-    @Get('/vnpay_return')
-    vnpayReturn(@Req() req: Request, @Res() res: Response) {
+    @Get('/vnpay_return/:id/')
+    async vnpayReturn(@Req() req: Request, @Res() res: Response, @Param('id') id: string) {
         let vnp_Params = req.query;
+
         const secureHash = vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHash'];
         delete vnp_Params['vnp_SecureHashType'];
 
         vnp_Params = this.sortObject(vnp_Params);
 
-        let tmnCode = process.env.VNP_TMN_CODE;
         let secretKey = process.env.VNP_HASH_SECRET;
-        let vnpUrl = process.env.VNP_URL;
-        let returnUrl = process.env.VNP_RETURN_URL;
-        const bookingId = vnp_Params['vnp_OrderType'];
+
+        console.log(id);
         const signData = querystring.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac('sha512', secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+        const booking = await PrismaDB.booking.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                customer: true,
+            },
+        });
 
         if (secureHash === signed) {
-            res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
-            this.expoNotiService.sendExpoNotify('Thanh toán', 'Thanh toán thành công', 'success', 'hight', bookingId as string);
+            // res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
+            this.expoNotiService.sendExpoNotify(
+                'Thanh toán',
+                'Thanh toán thành công',
+                'success',
+                'hight',
+                booking.customer.notify_token,
+                booking.customer_id,
+            );
+            res.render('payment-success');
+            // res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
-            res.render('success', { code: '97' });
+            res.json({ status: 'success', code: '97' });
         }
     }
 }

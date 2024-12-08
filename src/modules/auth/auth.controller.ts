@@ -24,6 +24,7 @@ import { UserService } from 'src/modules/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { ForgotPasswdDTO } from 'src/modules/auth/dto/forgot-password.dto';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
 @Controller('auth')
 export class AuthController {
@@ -192,8 +193,10 @@ export class AuthController {
 
     @Post('forgot-password')
     async forgotPasswd(@Body() forgotPasswdDTO: ForgotPasswdDTO, @Req() req: Request, @Res() res: Response) {
-        const exitstsUser = await this.userService.getUser({
-            phone_number: forgotPasswdDTO.phone_number,
+        const exitstsUser = await PrismaDB.user.findMany({
+            where: {
+                phone_number: forgotPasswdDTO.phone_number as any,
+            },
         });
 
         if (!exitstsUser) {
