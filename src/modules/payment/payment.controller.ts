@@ -148,14 +148,17 @@ export class PaymentController {
 
         if (secureHash === signed) {
             // res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
-            this.expoNotiService.sendExpoNotify(
-                'Thanh toán',
-                'Thanh toán thành công',
-                'success',
-                'hight',
-                booking.customer.notify_token,
-                booking.customer_id,
-            );
+            // if (booking.customer.notify_token) {
+            //     this.expoNotiService.sendExpoNotify(
+            //         'Thanh toán',
+            //         'Thanh toán thành công',
+            //         'success',
+            //         'hight',
+            //         booking.customer.notify_token,
+            //         booking.customer_id,
+            //     );
+            // }
+
             res.render('payment-success');
             // res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
