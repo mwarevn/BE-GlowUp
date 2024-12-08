@@ -39,9 +39,9 @@ export class AuthController {
         try {
             const createdAccount = await this.authService.registerAccount(registerAccountDTO);
 
-            res.json({ success: true, result: createdAccount });
+            return res.json({ success: true, result: createdAccount });
         } catch (error) {
-            res.status(HttpStatus.UNAUTHORIZED).json({
+            return res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -80,14 +80,14 @@ export class AuthController {
             res.cookie('access_token', access_token, options);
             res.cookie('refresh_token', refresh_token, options);
             //
-            res.json({
+            return res.json({
                 refresh_token,
                 access_token,
                 result: validUser,
             });
         } catch (error) {
             // console.log(error);
-            res.status(HttpStatus.UNAUTHORIZED).json({
+            return res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
                 message: 'Số điện thoại hoặc mật khẩu không chính xác!',
@@ -224,7 +224,7 @@ export class AuthController {
             throw new ServiceUnavailableException();
         }
 
-        res.json({ success: true });
+        return res.json({ success: true });
     }
 
     @Get('generate-access-token')
@@ -239,7 +239,7 @@ export class AuthController {
                     id: valid_refresh_token.id,
                 });
 
-                res.json({ success: true, access_token });
+                return res.json({ success: true, access_token });
             } else {
                 throw new UnauthorizedException();
             }

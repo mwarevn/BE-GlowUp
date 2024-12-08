@@ -32,12 +32,12 @@ export class BookingController {
     async create(@Body() createBookingDto: CreateBookingDto, @Res() res: Response) {
         try {
             const booking = await this.bookingService.create(createBookingDto);
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 result: booking,
             });
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
+            return res.status(HttpStatus.BAD_REQUEST).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -52,7 +52,7 @@ export class BookingController {
         const searchQuery = Object.keys(query)[0];
 
         if (!Object.values(BookingQuery).includes(searchQuery as BookingQuery) && Object.keys(query).length > 0) {
-            res.status(HttpStatus.BAD_REQUEST).json({
+            return res.status(HttpStatus.BAD_REQUEST).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: 'Invalid query',
@@ -63,7 +63,7 @@ export class BookingController {
 
         const bookings = await this.bookingService.findAll(searchQuery, query[searchQuery]);
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             result: bookings,
         });
@@ -72,7 +72,7 @@ export class BookingController {
     @Get(':id')
     async findOne(@Param('id') id: string, @Res() res: Response) {
         const booking = await this.bookingService.findOne(id);
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             result: booking,
         });
@@ -82,12 +82,12 @@ export class BookingController {
     async update(@Param('id') id: string, @Body() updateBookingDto: UpdateBookingDto, @Res() res: Response) {
         try {
             const booking = await this.bookingService.update(id, updateBookingDto);
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 result: booking,
             });
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
+            return res.status(HttpStatus.BAD_REQUEST).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -101,9 +101,9 @@ export class BookingController {
     async remove(@Param('id') id: string, @Res() res: Response) {
         try {
             const deleted = await this.bookingService.remove(id);
-            res.status(200).json({ success: deleted.deleted });
+            return res.status(200).json({ success: deleted.deleted });
         } catch (error) {
-            res.status(HttpStatus.BAD_REQUEST).json({
+            return res.status(HttpStatus.BAD_REQUEST).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,

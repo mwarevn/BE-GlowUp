@@ -48,14 +48,14 @@ export class BannerController {
             const banners = files.banners.map((file) => process.env.API_URL + file.path.replace('public/uploads', '')); // Lưu các đường dẫn ảnh
             const banner = await this.bannerService.create(name, banners); // Gọi service để lưu vào DB
 
-            res.json({
+            return res.json({
                 message: 'Uploaded successfully',
                 success: true,
                 result: banner,
             });
         } catch (error) {
             if (error.code === 'P2002') {
-                res.status(HttpStatus.CONFLICT).json({
+                return res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
                     message: `The banner name must be unique. The value you provided already exists.`,
@@ -63,7 +63,7 @@ export class BannerController {
                     path: '/banner',
                 });
             }
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -77,9 +77,9 @@ export class BannerController {
     async findAll(@Res() res: Response) {
         try {
             const banner = await this.bannerService.findAll();
-            res.status(200).json({ success: true, result: banner });
+            return res.status(200).json({ success: true, result: banner });
         } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -94,9 +94,9 @@ export class BannerController {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return `not found user with id ${id}`;
             const banner = await this.bannerService.findOne(id);
-            res.status(200).json({ success: true, result: banner });
+            return res.status(200).json({ success: true, result: banner });
         } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -125,7 +125,7 @@ export class BannerController {
             const banners = files.banners.map((file) => process.env.API_URL + file.path.replace('public/uploads', '')); // Lưu các đường dẫn ảnh
             const banner = await this.bannerService.update(id, name, banners); // Gọi service để lưu vào DB
 
-            res.status(200).json({
+            return res.status(200).json({
                 message: 'Update successfully',
                 success: true,
                 banner,
@@ -137,7 +137,7 @@ export class BannerController {
                     HttpStatus.CONFLICT,
                 );
             }
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,

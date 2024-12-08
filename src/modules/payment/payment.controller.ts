@@ -108,10 +108,10 @@ export class PaymentController {
             const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
             vnp_Params['vnp_SecureHash'] = signed;
             const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
-            res.status(200).json({ paymentUrl });
+            return res.status(200).json({ paymentUrl });
             // res.redirect(paymentUrl);
         } catch (error) {
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -160,9 +160,9 @@ export class PaymentController {
                         payment_status: 'PAID',
                     },
                 });
-                res.render('payment-success', { vnp_Params });
+                return res.render('payment-success', { vnp_Params });
             } catch (error) {
-                res.status(HttpStatus.BAD_REQUEST).json({
+                return res.status(HttpStatus.BAD_REQUEST).json({
                     success: false,
                     statusCode: HttpStatus.BAD_REQUEST,
                     message: error.message,
@@ -173,7 +173,7 @@ export class PaymentController {
 
             // res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
-            res.json({ status: 'success', code: '97' });
+            return res.json({ status: 'success', code: '97' });
         }
     }
 }
