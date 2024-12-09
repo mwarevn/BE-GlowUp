@@ -111,7 +111,7 @@ export class UserController {
         try {
             const updatedUser = await this.userService.updateProfile({ id }, updateProfileDTO);
 
-            res.json({ success: true, data: updatedUser });
+            return res.json({ success: true, data: updatedUser });
         } catch (error) {
             console.log(error.message);
             throw new BadRequestException('Kiểm tra lại định dạng dữ liệu!');
@@ -150,7 +150,7 @@ export class UserController {
                 throw new BadRequestException();
             }
 
-            res.json({ success: true, data: updatedUser });
+            return res.json({ success: true, data: updatedUser });
         } catch (error) {
             throw new ServiceUnavailableException();
         }

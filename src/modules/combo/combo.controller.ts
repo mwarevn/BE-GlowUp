@@ -59,7 +59,7 @@ export class ComboController {
                     },
                 });
                 if (!serviceId) {
-                    res.status(HttpStatus.NOT_FOUND).json({
+                    return res.status(HttpStatus.NOT_FOUND).json({
                         success: false,
                         statusCode: HttpStatus.NOT_FOUND,
                         message: `Service id ${service} not found`,
@@ -71,10 +71,10 @@ export class ComboController {
 
             const combo = await this.comboService.create(createComboDto);
 
-            res.json({ success: true, result: combo });
+            return res.json({ success: true, result: combo });
         } catch (error) {
             if (error.code === 'P2002') {
-                res.status(HttpStatus.CONFLICT).json({
+                return res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
                     message: `The combo name must be unique. The value you provided already exists.`,
@@ -82,7 +82,7 @@ export class ComboController {
                     path: '/combo',
                 });
             }
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -96,9 +96,9 @@ export class ComboController {
     async findAll(@Res() res: Response) {
         try {
             const combo = await this.comboService.findAll();
-            res.status(200).json({ success: true, result: combo });
+            return res.status(200).json({ success: true, result: combo });
         } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -111,16 +111,16 @@ export class ComboController {
     async findFilter(@Param('id') id: string, @Res() res: Response) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id))
-                res.status(400).json({
+                return res.status(400).json({
                     success: false,
                     statusCode: HttpStatus.BAD_REQUEST,
                     message: `not found mongoose Types ObjectId ${id}`,
                     result: null,
                 });
             const combo = await this.comboService.findFilter(id);
-            res.status(200).json({ success: true, result: combo });
+            return res.status(200).json({ success: true, result: combo });
         } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -138,9 +138,9 @@ export class ComboController {
     async findOne(@Param('id') id: string, @Res() res: Response) {
         try {
             const combo = await this.comboService.findOne(id);
-            res.status(200).json({ success: true, result: combo });
+            return res.status(200).json({ success: true, result: combo });
         } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,
@@ -160,7 +160,7 @@ export class ComboController {
     ) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id))
-                res.status(HttpStatus.NOT_FOUND).json({
+                return res.status(HttpStatus.NOT_FOUND).json({
                     success: false,
                     statusCode: HttpStatus.NOT_FOUND,
                     message: `not found mongoose Types ObjectId ${id}`,
@@ -182,7 +182,7 @@ export class ComboController {
                     },
                 });
                 if (!serviceId) {
-                    res.status(HttpStatus.NOT_FOUND).json({
+                    return res.status(HttpStatus.NOT_FOUND).json({
                         success: false,
                         statusCode: HttpStatus.NOT_FOUND,
                         message: `Service id ${service} not found`,
@@ -192,23 +192,23 @@ export class ComboController {
                 }
             }
             const combo = await this.comboService.update(id, updateComboDto);
-            res.json({ success: true, result: combo });
+            return res.json({ success: true, result: combo });
         } catch (error) {
             if (error.code === 'P2002') {
-                res.json({
+                return res.json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
                     message: `The combo name must be unique. The value you provided already exists.`,
                     result: null,
                     path: '/combo',
                 });
-                res.json({
-                    success: false,
-                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-                    message: error.message,
-                    result: null,
-                    path: '/combo',
-                });
+                // res.json({
+                //     success: false,
+                //     statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                //     message: error.message,
+                //     result: null,
+                //     path: '/combo',
+                // });
             }
         }
     }
@@ -216,11 +216,11 @@ export class ComboController {
     @Delete(':id')
     async remove(@Param('id') id: string, @Res() res: Response) {
         try {
-            if (!mongoose.Types.ObjectId.isValid(id)) res.status(400).json(`not found mongoose Types ObjectId ${id}`);
+            if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json(`not found mongoose Types ObjectId ${id}`);
             const combo = await this.comboService.remove(id);
-            res.status(200).json({ success: true });
+            return res.status(200).json({ success: true });
         } catch (error) {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 success: false,
                 statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: error.message,

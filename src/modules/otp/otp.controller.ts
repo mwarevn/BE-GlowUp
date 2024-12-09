@@ -91,19 +91,18 @@ export class OtpController {
             });
             response.on('end', () => {
                 // const body = Buffer.concat(chunks);
-                res.status(200).json({
-                    message:
-                        'OTP sent successfully. This code will expire in about 1 minute. Please do not share this code with anyone else.',
+                return res.status(200).json({
+                    message: 'OTP sent successfully',
                     link: `https://minhcuder.com/otp/verify?phone_number=${phone_number}&otp_code=${otp_code}`,
                 });
             });
             response.on('error', (error) => {
-                res.status(500).json({ message: 'Error sending OTP', error: error.message });
+                return res.status(500).json({ message: 'Error sending OTP', error: error.message });
             });
         });
         request.on('error', (error) => {
             console.error(error);
-            res.status(500).json({ message: 'Request error', error: error.message });
+            return res.status(500).json({ message: 'Request error', error: error.message });
         });
         request.write(postData);
         request.end();

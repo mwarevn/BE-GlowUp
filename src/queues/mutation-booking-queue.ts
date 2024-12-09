@@ -21,24 +21,23 @@ bookingQueue.process(1, async (job: any) => {
     const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } };
 
     try {
-        const [conflictingStylist, conflictingCustomer] = await Promise.all([
-            // Check stylist conflict
-            PrismaDB.booking.findMany({
-                where: {
-                    stylist_id: payload.stylist_id as any,
-                    ...(action === 'create' && statusOption),
-                    AND: [{ start_time: { lt: newEndTime } }, { end_time: { gt: newStartTime } }],
-                },
-            }),
-            // Check customer conflict
-            PrismaDB.booking.findMany({
+        const conflictingStylist = await PrismaDB.booking.findMany({
+            where: {
+                stylist_id: payload.stylist_id as any,
+                ...(action === 'create' && statusOption),
+                AND: [{ start_time: { lt: newEndTime } }, { end_time: { gt: newStartTime } }],
+            },
+        });
+        let conflictingCustomer;
+        if (payload.customer_id) {
+            conflictingCustomer = await PrismaDB.booking.findMany({
                 where: {
                     stylist_id: payload.customer_id as any,
                     ...(action === 'create' && statusOption),
                     AND: [{ start_time: { lt: newEndTime } }, { end_time: { gt: newStartTime } }],
                 },
-            }),
-        ]);
+            });
+        }
 
         switch (action) {
             case 'create':
@@ -69,7 +68,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
             };
         }
 
-        if (conflictingCustomer.length > 0 && conflictingCustomer[0].id !== id) {
+        if (conflictingCustomer && conflictingCustomer.length > 0 && conflictingCustomer[0].id !== id) {
             return { success: false, message: 'Bạn không thể đặt lịch trùng nhau!' };
         }
 
@@ -95,7 +94,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
             },
         });
 
-        if (newBooking) {
+        if (newBooking && newBooking.customer) {
             if (payload.status === BookingStatus.CONFIRMED && newBooking.customer?.notify_token) {
                 notifyExpoService.sendExpoNotify(
                     'Lịch hẹn đã được xác nhận!',
@@ -125,7 +124,7 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
             };
         }
 
-        if (conflictingCustomer.length > 0) {
+        if (conflictingCustomer && conflictingCustomer.length > 0) {
             return { success: false, message: 'Bạn không thể đặt lịch trùng nhau!' };
         }
 

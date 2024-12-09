@@ -11,6 +11,7 @@ import { PrismaDB } from '../prisma/prisma.extensions';
 import mongoose from 'mongoose';
 import path from 'path';
 import { ExpoNotiService } from '../expo-noti/expo-noti.service';
+import { PaymentStatus } from '@prisma/client';
 let querystring = require('qs');
 
 @Controller('payment')
@@ -108,10 +109,10 @@ export class PaymentController {
             const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
             vnp_Params['vnp_SecureHash'] = signed;
             const paymentUrl = vnpUrl + '?' + querystring.stringify(vnp_Params, { encode: false });
-            res.status(200).json({ paymentUrl });
+            return res.status(200).json({ paymentUrl });
             // res.redirect(paymentUrl);
         } catch (error) {
-            res.status(500).json({
+            return res.status(500).json({
                 success: false,
                 statusCode: HttpStatus.BAD_REQUEST,
                 message: error.message,
@@ -133,33 +134,46 @@ export class PaymentController {
 
         let secretKey = process.env.VNP_HASH_SECRET;
 
-        console.log(id);
         const signData = querystring.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac('sha512', secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
-        const booking = await PrismaDB.booking.findUnique({
-            where: {
-                id,
-            },
-            include: {
-                customer: true,
-            },
-        });
 
         if (secureHash === signed) {
             // res.render('success', { code: vnp_Params['vnp_ResponseCode'] });
-            this.expoNotiService.sendExpoNotify(
-                'Thanh toán',
-                'Thanh toán thành công',
-                'success',
-                'hight',
-                booking.customer.notify_token,
-                booking.customer_id,
-            );
-            res.render('payment-success');
+            // if (booking.customer.notify_token) {
+            //     this.expoNotiService.sendExpoNotify(
+            //         'Thanh toán',
+            //         'Thanh toán thành công',
+            //         'success',
+            //         'hight',
+            //         booking.customer.notify_token,
+            //         booking.customer_id,
+            //     );
+            // }
+
+            try {
+                await PrismaDB.booking.update({
+                    where: {
+                        id,
+                    },
+                    data: {
+                        payment_status: PaymentStatus.PAID, // con mẹ m có enum ko dùng
+                    },
+                });
+                return res.render('payment-success', { vnp_Params });
+            } catch (error) {
+                return res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: error.message,
+                    result: null,
+                    path: '/payment/vnpay_return',
+                });
+            }
+
             // res.json({ status: 'success', code: vnp_Params['vnp_ResponseCode'] });
         } else {
-            res.json({ status: 'success', code: '97' });
+            return res.json({ status: 'success', code: '97' });
         }
     }
 }
