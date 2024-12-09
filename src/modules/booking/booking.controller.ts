@@ -5,6 +5,7 @@ import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingQuery } from 'src/modules/booking/constant';
 import path from 'path';
 import { Response } from 'express';
+import { isDateInRange } from 'src/common/utils';
 
 @Controller('booking')
 export class BookingController {
@@ -68,6 +69,24 @@ export class BookingController {
             result: bookings,
         });
     }
+
+    // @Post()
+    // async bookingGuests(@Body() createBookingDto: CreateBookingDto, @Res() res: Response) {
+    //     const newEndTime = new Date(createBookingDto.end_time as any);
+    //     const newStartTime = new Date(createBookingDto.start_time as any);
+
+    //     if (newEndTime <= newStartTime) {
+    //         throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
+    //     }
+
+    //     if (newStartTime < new Date()) {
+    //         throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+    //     }
+
+    //     // if (!isDateInRange(newStartTime)) {
+    //     //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
+    //     // }
+    // }
 
     @Get(':id')
     async findOne(@Param('id') id: string, @Res() res: Response) {

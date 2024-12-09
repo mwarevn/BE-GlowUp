@@ -33,7 +33,7 @@ export const populateBookingData = async (validBooking) => {
             ...validBooking.combo,
             services,
         },
-        total_time: services.reduce((sum, service) => sum + parseFloat(service.total_time) || 0, 0),
+        total_time: services.reduce((sum, service) => sum + parseFloat(service.time) || 0, 0),
         total_price: services.reduce((sum, service) => sum + parseFloat(service.price) || 0, 0),
     };
 };
@@ -118,23 +118,33 @@ export class BookingService {
         if (!isDateInRange(newStartTime)) {
             throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         } // 8h - 20h30
+        const stylist = await PrismaDB.user.findUnique({
+            where: {
+                id: createBookingDto.stylist_id as string,
+                role: Roles.STYLIST,
+            },
+            select: { profile: true },
+        });
 
-        const [stylist, combo] = await Promise.all([
-            PrismaDB.user.findUnique({
-                where: {
-                    id: createBookingDto.stylist_id as any,
-                    role: Roles.STYLIST,
-                },
-                select: { profile: true },
-            }),
-            PrismaDB.combo.findUnique({
-                where: {
-                    id: createBookingDto.combo_id as any,
-                },
-            }),
-        ]);
+        const combo = await PrismaDB.combo.findUnique({
+            where: {
+                id: createBookingDto.combo_id as string,
+            },
+        });
 
-        if (combo == null) {
+        if (createBookingDto.customer_id) {
+            const customer = await PrismaDB.user.findUnique({
+                where: {
+                    id: createBookingDto.customer_id as string,
+                },
+            });
+
+            if (!customer) {
+                throw new Error('Không tìm thấy khách hàng này!');
+            }
+        }
+
+        if (!combo) {
             throw new Error('Combo không tồn tại!.');
         }
 
@@ -142,7 +152,7 @@ export class BookingService {
             throw new Error('Combo này không có dịch vụ!.');
         }
 
-        if (stylist == null || !stylist.profile || stylist.profile.stylist.isWorking === false) {
+        if (!stylist || !stylist.profile || stylist.profile.stylist.isWorking === false) {
             throw new Error('Stylist này không còn làm việc!.');
         }
 
@@ -250,8 +260,6 @@ export class BookingService {
                 },
             },
         });
-
-        console.log(booking);
 
         return await Promise.all(booking.map(async (item) => await populateBookingData(item)));
     }

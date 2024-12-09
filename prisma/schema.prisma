@@ -144,20 +144,24 @@ enum BookingStatus {
 }
 
 model Booking {
-  id          String        @id @default(auto()) @map("_id") @db.ObjectId
-  customer_id String        @db.ObjectId
-  stylist_id  String        @db.ObjectId
-  combo_id    String?       @db.ObjectId
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  customer_id String?  @db.ObjectId
+  stylist_id  String   @db.ObjectId
+  combo_id    String?  @db.ObjectId
   start_time  DateTime
   end_time    DateTime
-  status      BookingStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  deleted     Boolean       @default(false)
+
+  phone_number String?
+  full_name    String?
+
+  status    BookingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  deleted   Boolean       @default(false)
 
   payment_status PaymentStatus @default(PENDING)
 
-  customer User   @relation("CustomerBooking", fields: [customer_id], references: [id])
+  customer User?  @relation("CustomerBooking", fields: [customer_id], references: [id])
   stylist  User   @relation("StylistBooking", fields: [stylist_id], references: [id])
   combo    Combo? @relation(fields: [combo_id], references: [id])
 
