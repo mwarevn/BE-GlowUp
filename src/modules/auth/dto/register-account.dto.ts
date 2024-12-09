@@ -14,7 +14,7 @@ import {
 export class RegisterAccountDTO {
     @IsString()
     @MaxLength(100)
-    @ApiProperty({ example: 'Anh minh tit đẹp trai nhất nhóm' })
+    @ApiProperty({ example: 'Anh minh tit trông như lồn bò' })
     readonly full_name: string;
 
     @IsMobilePhone('vi-VN', null)

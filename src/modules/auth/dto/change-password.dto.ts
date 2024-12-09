@@ -27,7 +27,7 @@ export class ChangePasswdDTO {
     @IsString()
     @ValidateIf((o) => o.password)
     @IsString()
-    @IsEqual('new_password', { message: 'Confirm password must match password' })
+    @IsEqual('new_password', { message: 'Mật khẩu không trùng khớp!' })
     @ApiProperty({ example: '123321' })
     readonly confirm_password: string;
 }
@@ -40,7 +40,7 @@ function IsEqual(property: string, validationOptions?: any) {
                 return value === relatedValue;
             },
             defaultMessage(args: any) {
-                return `${propertyName} must match ${property}`;
+                return `${propertyName} không khớp với ${property}`;
             },
         };
 

@@ -15,13 +15,13 @@ export class AnalysisService {
         const options: any = {};
 
         if (!start_date || !end_date) {
-            throw new Error('Invalid date range');
+            throw new Error('Ngày giờ không hợp lệ!');
         } else {
             try {
                 new Date(start_date);
                 new Date(end_date);
             } catch (error) {
-                throw new Error('Invalid date format');
+                throw new Error('Ngày giờ không hợp lệ!');
             }
         }
 
