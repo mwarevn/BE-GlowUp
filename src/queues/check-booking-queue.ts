@@ -8,7 +8,8 @@ const expoNotiService = new ExpoNotiService();
 const checkBookingQueue = new Queue('check-booking-queue', {
     redis: {
         host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT),
+        port: 6379,
+        // port: parseInt(process.env.REDIS_PORT),
     },
 });
 
