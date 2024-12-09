@@ -11,6 +11,7 @@ import { PrismaDB } from '../prisma/prisma.extensions';
 import mongoose from 'mongoose';
 import path from 'path';
 import { ExpoNotiService } from '../expo-noti/expo-noti.service';
+import { PaymentStatus } from '@prisma/client';
 let querystring = require('qs');
 
 @Controller('payment')
@@ -133,7 +134,6 @@ export class PaymentController {
 
         let secretKey = process.env.VNP_HASH_SECRET;
 
-        console.log(id);
         const signData = querystring.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac('sha512', secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
@@ -152,12 +152,12 @@ export class PaymentController {
             // }
 
             try {
-                const booking = await PrismaDB.booking.update({
+                await PrismaDB.booking.update({
                     where: {
                         id,
                     },
                     data: {
-                        payment_status: 'PAID',
+                        payment_status: PaymentStatus.PAID, // con mẹ m có enum ko dùng
                     },
                 });
                 return res.render('payment-success', { vnp_Params });

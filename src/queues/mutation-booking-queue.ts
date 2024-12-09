@@ -68,7 +68,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
             };
         }
 
-        if (conflictingCustomer.length > 0 && conflictingCustomer[0].id !== id) {
+        if (conflictingCustomer && conflictingCustomer.length > 0 && conflictingCustomer[0].id !== id) {
             return { success: false, message: 'Bạn không thể đặt lịch trùng nhau!' };
         }
 
@@ -94,7 +94,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
             },
         });
 
-        if (newBooking) {
+        if (newBooking && newBooking.customer) {
             if (payload.status === BookingStatus.CONFIRMED && newBooking.customer?.notify_token) {
                 notifyExpoService.sendExpoNotify(
                     'Lịch hẹn đã được xác nhận!',
