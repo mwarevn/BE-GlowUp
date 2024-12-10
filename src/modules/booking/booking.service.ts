@@ -46,9 +46,6 @@ export class BookingService {
         const booking = await PrismaDB.booking.findUnique({
             where: {
                 id: booking_id,
-                // customer: {
-                //     phone_number: phone,
-                // },
             },
             include: {
                 customer: {
