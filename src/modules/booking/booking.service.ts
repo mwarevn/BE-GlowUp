@@ -46,9 +46,6 @@ export class BookingService {
         const booking = await PrismaDB.booking.findUnique({
             where: {
                 id: booking_id,
-                // customer: {
-                //     phone_number: phone,
-                // },
             },
             include: {
                 customer: {
@@ -168,6 +165,7 @@ export class BookingService {
 
     async findAll(key, value) {
         const coditions = [];
+
         switch (key) {
             case BookingQuery.phone_number:
                 coditions.push({
@@ -237,6 +235,8 @@ export class BookingService {
             default:
                 break;
         }
+
+        console.log(coditions);
 
         const booking = await PrismaDB.booking.findMany({
             where: {

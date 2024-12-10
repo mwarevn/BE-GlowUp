@@ -15,6 +15,10 @@ cron.schedule('* * * * *', async () => {
         scheduleBookingCheck(booking);
     });
 });
+function convertMillisecondsToMinutes(milliseconds) {
+    const minutes = Math.floor(milliseconds / (1000 * 60));
+    return `${minutes} phút`;
+}
 
 export const scheduleBookingCheck = async (booking) => {
     try {
@@ -26,11 +30,19 @@ export const scheduleBookingCheck = async (booking) => {
 
         const existsJob = await getCheckBookingQueueJob(booking.id);
 
+        console.log(
+            '\n' +
+                checkTime.toLocaleString() +
+                ' - Auto cancel will start affter: ' +
+                convertMillisecondsToMinutes(delay > 0 ? delay : 0),
+        );
+
         if (existsJob === null) {
             console.log(
-                'Job time out - will auto cancel after: ' + (delay > 0 ? delay : 0),
-                '\nNOW: ' + now,
-                '\nOUT: ' + checkTime,
+                '\n' +
+                    checkTime.toLocaleString() +
+                    ' - Auto cancel will start affter: ' +
+                    convertMillisecondsToMinutes(delay > 0 ? delay : 0),
             );
             addCheckBookingQueue(
                 {

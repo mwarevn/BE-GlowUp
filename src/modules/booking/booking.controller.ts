@@ -10,11 +10,12 @@ import { isDateInRange } from 'src/common/utils';
 @Controller('booking')
 export class BookingController {
     constructor(private readonly bookingService: BookingService) {}
-
+    //
     @Get('cancel')
     async cancelBooking(@Query('phone') phone: string, @Query('booking_id') booking_id: string, @Res() res: Response) {
         try {
             const booking = await this.bookingService.cancelBooking(phone, booking_id);
+
             return res.status(200).json({
                 success: true,
                 result: booking,
