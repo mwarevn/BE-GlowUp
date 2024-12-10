@@ -60,9 +60,9 @@ const notifyExpoService = new ExpoNotiService();
 async function handleUpdateBooking(payload, conflictingStylist, conflictingCustomer) {
     const id = payload.id;
     delete payload.id;
-
+    console.log(payload);
     try {
-        if (conflictingStylist.length > 0 && conflictingStylist[0].id !== id) {
+        if (conflictingStylist.length > 0 && conflictingStylist[0].id !== payload.stylist_id) {
             return {
                 success: false,
                 message: 'Stylist này đã có lịch khác vào thời gian này vui lòng chọn stylist hoặc khung giờ khác!',
