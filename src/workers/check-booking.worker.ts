@@ -30,19 +30,13 @@ export const scheduleBookingCheck = async (booking) => {
 
         const existsJob = await getCheckBookingQueueJob(booking.id);
 
-        console.log(
-            '\n' +
-                checkTime.toLocaleString() +
-                ' - Auto cancel will start affter: ' +
-                convertMillisecondsToMinutes(delay > 0 ? delay : 0),
-        );
-
         if (existsJob === null) {
             console.log(
-                '\n' +
+                '\n[' +
                     checkTime.toLocaleString() +
-                    ' - Auto cancel will start affter: ' +
-                    convertMillisecondsToMinutes(delay > 0 ? delay : 0),
+                    '] - Tự động hủy lịch sẽ chạy sau: ' +
+                    convertMillisecondsToMinutes(delay > 0 ? delay : 0) +
+                    ' nữa.',
             );
             addCheckBookingQueue(
                 {
