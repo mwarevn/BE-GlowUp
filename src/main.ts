@@ -71,7 +71,7 @@ async function bootstrap() {
             mongoose
                 .connect(process.env.MONGODB_CONECTION_STRING)
                 .then(() => {
-                    console.log('MongoDB connected');
+                    console.log('[+] MongoDB connected\n\n');
                 })
                 .catch(console.error);
         })
@@ -80,13 +80,10 @@ async function bootstrap() {
             console.log('────────────────────────────────────────────────────────────────────────────────');
             console.log('\n');
             console.log(`[!] Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
-            console.log('\n');
-            console.log(' > Application running on PORT: ' + PORT);
-            console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
-            console.log('\n\n');
-            console.log('Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
-            console.log('Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
-            console.log('\n\n');
+            console.log('[+] Application running on PORT: ' + PORT);
+            console.log('[+] Swagger running on: http://localhost:' + PORT + '/api-docs');
+            console.log('[i] Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
+            console.log('[i] Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
         });
 }
 
