@@ -92,6 +92,54 @@ export class BookingService {
         });
     }
 
+    async changeBookingStatus(phone: string, booking_id: string, status: BookingStatus) {
+        const booking = await PrismaDB.booking.findUnique({
+            where: {
+                id: booking_id,
+            },
+            include: {
+                customer: {
+                    select: {
+                        notify_token: true,
+                        ...selectFileds,
+                    },
+                },
+            },
+        });
+
+        if (!booking) {
+            throw new Error('Không tìm thấy booking!.');
+        }
+
+        // if (booking.status === BookingStatus.CANCELED) {
+        //     throw new Error('Booking này đã bị hủy!.');
+        // }
+
+        const notify_token = booking.customer?.notify_token;
+
+        // console.log(booking);
+        if (notify_token) {
+            // console.log(notify_token);
+            this.expoNotiService.sendExpoNotify(
+                'Booking đã bị hủy',
+                'Đã hủy booking của bạn',
+                'success',
+                'hight',
+                booking.customer.notify_token,
+                booking.customer_id,
+            );
+        }
+
+        return await PrismaDB.booking.update({
+            where: {
+                id: booking_id,
+            },
+            data: {
+                status,
+            },
+        });
+    }
+
     /**
      * Coditions:
      * - Phải login (customer, stylist)

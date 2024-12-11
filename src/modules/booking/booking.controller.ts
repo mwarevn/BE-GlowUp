@@ -6,6 +6,8 @@ import { BookingQuery } from 'src/modules/booking/constant';
 import path from 'path';
 import { Response } from 'express';
 import { isDateInRange } from 'src/common/utils';
+import { removeJob } from 'src/queues/check-booking-queue';
+import { BookingStatus } from '@prisma/client';
 
 @Controller('booking')
 export class BookingController {
@@ -15,6 +17,34 @@ export class BookingController {
     async cancelBooking(@Query('phone') phone: string, @Query('booking_id') booking_id: string, @Res() res: Response) {
         try {
             const booking = await this.bookingService.cancelBooking(phone, booking_id);
+
+            return res.status(200).json({
+                success: true,
+                result: booking,
+            });
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+            });
+        }
+    }
+
+    @Get('change-booking-status')
+    async changeBookingStatus(
+        @Query('phone') phone: string,
+        @Query('booking_id') booking_id: string,
+        @Query('status') status: BookingStatus,
+        @Res() res: Response,
+    ) {
+        try {
+            const booking = await this.bookingService.changeBookingStatus(phone, booking_id, status);
+
+            if (booking) {
+                removeJob(booking_id);
+            }
 
             return res.status(200).json({
                 success: true,
