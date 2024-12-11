@@ -12,6 +12,7 @@ import './workers/check-booking.worker';
 import { SocketGateway } from 'src/modules/socket/socket.gateway';
 let socketGateway: SocketGateway;
 import * as mongoose from 'mongoose';
+import * as partials from 'express-partials';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -28,6 +29,7 @@ async function bootstrap() {
 
     app.setBaseViewsDir(join(__dirname, '..', 'src/views'));
     app.setViewEngine('ejs');
+    app.use(partials());
     //
     app.useStaticAssets(join(__dirname, '..', 'public'));
     // app protections

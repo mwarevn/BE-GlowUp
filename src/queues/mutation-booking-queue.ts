@@ -8,8 +8,8 @@ import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 const bookingQueue = new Queue('mutation-booking-queue', {
     redis: {
         host: process.env.REDIS_HOST,
-        // port: parseInt(process.env.REDIS_PORT),
-        port: 6379,
+        port: parseInt(process.env.REDIS_PORT),
+        // port: 6379,
     },
 });
 
