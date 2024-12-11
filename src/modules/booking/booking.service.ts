@@ -125,7 +125,7 @@ export class BookingService {
                     'Booking đã bị hủy',
                     'Đã hủy booking của bạn',
                     'success',
-                    'hight',
+                    'high',
                     booking.customer.notify_token,
                     booking.customer_id,
                 )
