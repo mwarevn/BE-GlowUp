@@ -33,7 +33,7 @@ export const scheduleBookingCheck = async (booking) => {
         if (existsJob === null) {
             console.log(
                 '\n[' +
-                    localDate(checkTime).toLocaleString() +
+                    localDate(startTime).toLocaleString() +
                     '] - Tự động hủy lịch sẽ chạy sau: ' +
                     convertMillisecondsToMinutes(delay > 0 ? delay : 0) +
                     ' nữa.',
