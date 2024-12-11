@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateAnalysisDto } from './dto/create-analysis.dto';
 import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { selectFileds } from 'src/common/utils';
+import { selectFileds, utcDate } from 'src/common/utils';
 import { populateBookingData } from 'src/modules/booking/booking.service';
 
 @Injectable()
@@ -18,8 +18,8 @@ export class AnalysisService {
             throw new Error('Ngày giờ không hợp lệ!');
         } else {
             try {
-                new Date(start_date);
-                new Date(end_date);
+                utcDate(new Date(start_date));
+                utcDate(new Date(end_date));
             } catch (error) {
                 throw new Error('Ngày giờ không hợp lệ!');
             }
@@ -36,10 +36,10 @@ export class AnalysisService {
         const bookings = await PrismaDB.booking.findMany({
             where: {
                 start_time: {
-                    gte: new Date(start_date.replace(' ', '+')) as any,
+                    gte: utcDate(new Date(start_date.replace(' ', '+'))),
                 },
                 end_time: {
-                    lte: new Date(end_date.replace(' ', '+')) as any,
+                    lte: utcDate(new Date(end_date.replace(' ', '+'))),
                 },
 
                 ...options,

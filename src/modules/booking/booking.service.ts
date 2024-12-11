@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
-import { formatDate, isDateInRange, selectFileds } from 'src/common/utils';
+import { formatDate, isDateInRange, selectFileds, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { BookingStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
@@ -157,14 +157,14 @@ export class BookingService {
      * - Customer không thể order 2 lần trong cùng 1 khoảng thời gian.
      */
     async create(createBookingDto: CreateBookingDto) {
-        const newEndTime = new Date(createBookingDto.end_time as any);
-        const newStartTime = new Date(createBookingDto.start_time as any);
+        const newEndTime = utcDate(new Date(createBookingDto.end_time as any));
+        const newStartTime = utcDate(new Date(createBookingDto.start_time as any));
 
         if (newEndTime <= newStartTime) {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        if (newStartTime < new Date()) {
+        if (newStartTime < utcDate(new Date())) {
             throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
         }
 
@@ -375,8 +375,8 @@ export class BookingService {
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
-        const newEndTime = new Date(updateBookingDto.end_time as any);
-        const newStartTime = new Date(updateBookingDto.start_time as any);
+        const newEndTime = utcDate(new Date(updateBookingDto.end_time as any));
+        const newStartTime = utcDate(new Date(updateBookingDto.start_time as any));
 
         const currentBooking = await PrismaDB.booking.findUnique({
             where: { id },
@@ -391,7 +391,7 @@ export class BookingService {
                 throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
             }
 
-            if (newStartTime < new Date()) {
+            if (newStartTime < utcDate(new Date())) {
                 throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
             }
         }

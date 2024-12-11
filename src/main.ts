@@ -13,6 +13,7 @@ import { SocketGateway } from 'src/modules/socket/socket.gateway';
 let socketGateway: SocketGateway;
 import * as mongoose from 'mongoose';
 import * as partials from 'express-partials';
+import { localDate, utcDate } from 'src/common/utils';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -64,8 +65,6 @@ async function bootstrap() {
 
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api-docs', app, document);
-    // end
-    //
 
     await app
         .listen(PORT, () => {
@@ -85,7 +84,8 @@ async function bootstrap() {
             console.log(' > Application running on PORT: ' + PORT);
             console.log(' > Swagger running on: http://localhost:' + PORT + '/api-docs');
             console.log('\n\n');
-            console.log(new Date());
+            console.log('Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
+            console.log('Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
             console.log('\n\n');
         });
 }

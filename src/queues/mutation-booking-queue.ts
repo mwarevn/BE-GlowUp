@@ -1,6 +1,6 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
-import { selectFileds } from 'src/common/utils';
+import { selectFileds, utcDate } from 'src/common/utils';
 import { broadcastNotification } from 'src/main';
 import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
@@ -17,8 +17,8 @@ bookingQueue.process(1, async (job: any) => {
     const payload = job.data.data;
     const action = job.data.action;
 
-    const newEndTime = new Date(payload.end_time as any);
-    const newStartTime = new Date(payload.start_time as any);
+    const newEndTime = utcDate(new Date(payload.end_time as any));
+    const newStartTime = utcDate(new Date(payload.start_time as any));
     const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } };
 
     try {
