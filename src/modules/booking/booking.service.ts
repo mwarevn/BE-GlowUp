@@ -120,14 +120,22 @@ export class BookingService {
         // console.log(booking);
         if (notify_token) {
             console.log(notify_token);
-            this.expoNotiService.sendExpoNotify(
-                'Booking đã bị hủy',
-                'Đã hủy booking của bạn',
-                'success',
-                'hight',
-                booking.customer.notify_token,
-                booking.customer_id,
-            );
+            this.expoNotiService
+                .sendExpoNotify(
+                    'Booking đã bị hủy',
+                    'Đã hủy booking của bạn',
+                    'success',
+                    'hight',
+                    booking.customer.notify_token,
+                    booking.customer_id,
+                )
+                .then((res) => res.json())
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    console.log({ errorSendNotify: err });
+                });
         }
 
         return await PrismaDB.booking.update({
