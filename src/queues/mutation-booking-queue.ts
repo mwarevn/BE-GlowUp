@@ -101,7 +101,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
                     'Lịch hẹn đã được xác nhận!',
                     'Lịch hẹn đã được xác nhận!',
                     'success',
-                    'hight',
+                    'high',
                     newBooking.customer.notify_token,
                     newBooking.customer_id,
                 );
