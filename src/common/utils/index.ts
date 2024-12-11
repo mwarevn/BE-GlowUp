@@ -81,7 +81,7 @@ export const formatDate = (dateTime: Date) => {
 };
 
 export function isDateInRange(dateString) {
-    const date = utcDate(new Date(dateString));
+    const date = localDate(new Date(dateString));
 
     console.log({ dateString });
 
