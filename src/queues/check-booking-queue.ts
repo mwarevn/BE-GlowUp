@@ -47,7 +47,14 @@ checkBookingQueue.process(8, async (job: any) => {
         const token = user?.notify_token;
 
         if (token) {
-            expoNotiService.sendExpoNotify('Booking canceled', 'Time out!', 'error', 'high', token, user.id);
+            expoNotiService.sendExpoNotify(
+                'Lịch hẹn của bạn đã bị huỷ!',
+                'Rất tiếc lịch hẹn của bạn đã bị huỷ do quá giờ mà bạn chưa tới :(',
+                'error',
+                'high',
+                token,
+                user.id,
+            );
         }
 
         // send notification to user
