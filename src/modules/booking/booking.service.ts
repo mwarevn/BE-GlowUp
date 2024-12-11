@@ -119,7 +119,7 @@ export class BookingService {
 
         // console.log(booking);
         if (notify_token) {
-            // console.log(notify_token);
+            console.log(notify_token);
             this.expoNotiService.sendExpoNotify(
                 'Booking đã bị hủy',
                 'Đã hủy booking của bạn',
