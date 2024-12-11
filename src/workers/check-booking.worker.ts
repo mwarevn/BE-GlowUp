@@ -1,6 +1,6 @@
 import { BookingStatus } from '@prisma/client';
 import * as cron from 'node-cron';
-import { formatDate, utcDate } from 'src/common/utils';
+import { formatDate, localDate, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { addCheckBookingQueue, getCheckBookingQueueJob, removeJob } from 'src/queues/check-booking-queue';
 
@@ -33,7 +33,7 @@ export const scheduleBookingCheck = async (booking) => {
         if (existsJob === null) {
             console.log(
                 '\n[' +
-                    checkTime.toLocaleString() +
+                    localDate(checkTime).toLocaleString() +
                     '] - Tự động hủy lịch sẽ chạy sau: ' +
                     convertMillisecondsToMinutes(delay > 0 ? delay : 0) +
                     ' nữa.',
