@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
-import { formatDate, isDateInRange, selectFileds } from 'src/common/utils';
+import { formatDate, isDateInRange, selectFileds, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { BookingStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
@@ -76,7 +76,7 @@ export class BookingService {
                 'Booking đã bị hủy',
                 'Đã hủy booking của bạn',
                 'success',
-                'hight',
+                'high',
                 booking.customer.notify_token,
                 booking.customer_id,
             );
@@ -92,6 +92,62 @@ export class BookingService {
         });
     }
 
+    async changeBookingStatus(phone: string, booking_id: string, status: BookingStatus) {
+        const booking = await PrismaDB.booking.findUnique({
+            where: {
+                id: booking_id,
+            },
+            include: {
+                customer: {
+                    select: {
+                        notify_token: true,
+                        ...selectFileds,
+                    },
+                },
+            },
+        });
+
+        if (!booking) {
+            throw new Error('Không tìm thấy booking!.');
+        }
+
+        // if (booking.status === BookingStatus.CANCELED) {
+        //     throw new Error('Booking này đã bị hủy!.');
+        // }
+
+        const notify_token = booking.customer?.notify_token;
+
+        // console.log(booking);
+        if (notify_token) {
+            console.log(notify_token);
+            this.expoNotiService
+                .sendExpoNotify(
+                    'Booking đã bị hủy',
+                    'Đã hủy booking của bạn',
+                    'success',
+                    'high',
+                    booking.customer.notify_token,
+                    booking.customer_id,
+                )
+                .then((res) => res.json())
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    console.log({ errorSendNotify: err });
+                });
+        }
+
+        return await PrismaDB.booking.update({
+            where: {
+                id: booking_id,
+            },
+            data: {
+                status,
+            },
+        });
+    }
+
     /**
      * Coditions:
      * - Phải login (customer, stylist)
@@ -101,14 +157,14 @@ export class BookingService {
      * - Customer không thể order 2 lần trong cùng 1 khoảng thời gian.
      */
     async create(createBookingDto: CreateBookingDto) {
-        const newEndTime = new Date(createBookingDto.end_time as any);
-        const newStartTime = new Date(createBookingDto.start_time as any);
+        const newEndTime = utcDate(new Date(createBookingDto.end_time as any));
+        const newStartTime = utcDate(new Date(createBookingDto.start_time as any));
 
         if (newEndTime <= newStartTime) {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        if (newStartTime < new Date()) {
+        if (newStartTime < utcDate(new Date())) {
             throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
         }
 
@@ -319,8 +375,8 @@ export class BookingService {
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
-        const newEndTime = new Date(updateBookingDto.end_time as any);
-        const newStartTime = new Date(updateBookingDto.start_time as any);
+        const newEndTime = utcDate(new Date(updateBookingDto.end_time as any));
+        const newStartTime = utcDate(new Date(updateBookingDto.start_time as any));
 
         const currentBooking = await PrismaDB.booking.findUnique({
             where: { id },
@@ -335,7 +391,7 @@ export class BookingService {
                 throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
             }
 
-            if (newStartTime < new Date()) {
+            if (newStartTime < utcDate(new Date())) {
                 throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
             }
         }

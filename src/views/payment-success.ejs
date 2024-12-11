@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt lịch thành công</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-white">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow">
+                    <div class="card-body text-center">
+                        <!-- Icon Success -->
+                        <div class="mb-4">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                        </div>
+                        <!-- Title -->
+                        <h2 class="card-title text-uppercase fw-bold">Đặt lịch thành công!</h2>
+                        <!-- Order Details -->
+                        <ul class="list-group list-group-flush text-start mt-4">
+                            <li class="list-group-item"><strong>Mã đặt lịch:</strong> <%=vnp_Params['vnp_OrderInfo']%></li>
+                            <li class="list-group-item"><strong>Số tiền:</strong>   <%= (vnp_Params['vnp_Amount'] / 100).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) %></li>
+                            <li class="list-group-item"><strong>Thời gian:</strong> <%= new Date().toLocaleDateString('vi-VN') %></li> <!-- Đặt id cho phần tử hiển thị thời gian -->
+                            <li class="list-group-item"><strong>Trạng thái thanh toán:</strong> đã thanh toán</li>
+                        </ul>
+                        <!-- Message -->
+                        <p class="mt-4">Cảm ơn bạn đã đặt lịch, chúng tôi rất hân hạnh được xử lý yêu cầu của bạn</p>
+          
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

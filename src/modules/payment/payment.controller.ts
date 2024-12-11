@@ -92,7 +92,7 @@ export class PaymentController {
                 vnp_Locale: body.language || 'vn',
                 vnp_CurrCode: 'VND',
                 vnp_TxnRef: orderId,
-                vnp_OrderInfo: 'Thanh toan cho ma GD:' + orderId,
+                vnp_OrderInfo: orderId,
                 vnp_OrderType: bookingId,
                 vnp_Amount: amount,
                 vnp_ReturnUrl: `${returnUrl}/${bookingId}/`,

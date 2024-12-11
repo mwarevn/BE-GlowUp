@@ -81,13 +81,15 @@ export const formatDate = (dateTime: Date) => {
 };
 
 export function isDateInRange(dateString) {
-    const date = new Date(dateString);
+    const date = localDate(new Date(dateString));
 
-    // Kiểm tra ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
-    const dayOfWeek = date.getUTCDay();
-    if (dayOfWeek < 1 || dayOfWeek > 6) {
-        return false; // Không phải thứ Hai đến thứ 7
-    }
+    console.log({ dateString });
+
+    // // Kiểm tra ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
+    // const dayOfWeek = date.getUTCDay();
+    // if (dayOfWeek < 1 || dayOfWeek > 6) {
+    //     return false; // Không phải thứ Hai đến thứ 7
+    // }
 
     // Kiểm tra giờ
     const hours = date.getUTCHours();
@@ -95,4 +97,13 @@ export function isDateInRange(dateString) {
     const isInTimeRange = (hours > 8 || (hours === 8 && minutes >= 0)) && (hours < 20 || (hours === 20 && minutes <= 30));
 
     return isInTimeRange;
+}
+
+export function localDate(date: Date) {
+    const localTimeString = date.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
+    return new Date(localTimeString);
+}
+
+export function utcDate(date: Date) {
+    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
 }

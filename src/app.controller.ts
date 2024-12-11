@@ -8,7 +8,7 @@ export class AppController {
 
     @Get()
     getHello(@Res() res: Response, @Req() req: Request) {
-        // return res.render('index');
+        return res.render('index');
         // return res.redirect('');
     }
 }

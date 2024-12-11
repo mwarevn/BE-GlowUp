@@ -8,8 +8,8 @@ const expoNotiService = new ExpoNotiService();
 const checkBookingQueue = new Queue('check-booking-queue', {
     redis: {
         host: process.env.REDIS_HOST,
-        port: 6379,
-        // port: parseInt(process.env.REDIS_PORT),
+        // port: 6379,
+        port: parseInt(process.env.REDIS_PORT),
     },
 });
 
@@ -47,7 +47,7 @@ checkBookingQueue.process(8, async (job: any) => {
         const token = user?.notify_token;
 
         if (token) {
-            expoNotiService.sendExpoNotify('Booking canceled', 'Time out!', 'error', 'hight', token, user.id);
+            expoNotiService.sendExpoNotify('Booking canceled', 'Time out!', 'error', 'high', token, user.id);
         }
 
         // send notification to user

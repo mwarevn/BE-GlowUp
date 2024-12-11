@@ -91,7 +91,7 @@ export class UserController {
         @Param('id') id: string,
         @Res() res: Response,
     ) {
-        console.log(updateProfileDTO);
+        // console.log(updateProfileDTO);
         if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
 
         const user = req['user'];
