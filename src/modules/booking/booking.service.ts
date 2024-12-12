@@ -3,7 +3,7 @@ import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { formatDate, isDateInRange, selectFileds, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { BookingStatus, Roles } from '@prisma/client';
+import { BookingStatus, PaymentStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
 import { BookingQuery } from 'src/modules/booking/constant';
 import { removeJob } from 'src/queues/check-booking-queue';
@@ -144,6 +144,62 @@ export class BookingService {
             },
             data: {
                 status,
+            },
+        });
+    }
+
+    async changeBookingPaymentStatus(phone: string, booking_id: string, payment_status: PaymentStatus) {
+        const booking = await PrismaDB.booking.findUnique({
+            where: {
+                id: booking_id,
+            },
+            include: {
+                customer: {
+                    select: {
+                        notify_token: true,
+                        ...selectFileds,
+                    },
+                },
+            },
+        });
+
+        if (!booking) {
+            throw new Error('Không tìm thấy booking!.');
+        }
+
+        // if (booking.status === BookingStatus.CANCELED) {
+        //     throw new Error('Booking này đã bị hủy!.');
+        // }
+
+        const notify_token = booking.customer?.notify_token;
+
+        // console.log(booking);
+        if (notify_token) {
+            console.log(notify_token);
+            this.expoNotiService
+                .sendExpoNotify(
+                    'Thanh toán đã bị hủy',
+                    'Đã hủy thanh toán của bạn',
+                    'success',
+                    'high',
+                    booking.customer.notify_token,
+                    booking.customer_id,
+                )
+                .then((res) => res.json())
+                .then((res) => {
+                    console.log(res);
+                })
+                .catch((err) => {
+                    console.log({ errorSendNotify: err });
+                });
+        }
+
+        return await PrismaDB.booking.update({
+            where: {
+                id: booking_id,
+            },
+            data: {
+                payment_status,
             },
         });
     }
