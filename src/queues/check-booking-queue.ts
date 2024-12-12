@@ -40,21 +40,23 @@ checkBookingQueue.process(8, async (job: any) => {
             });
         }
 
-        const user = await PrismaDB.user.findUnique({
-            where: { id: payload.data.booking.customer_id },
-        });
+        if (payload.data.booking.customer_id) {
+            const user = await PrismaDB.user.findUnique({
+                where: { id: payload.data.booking.customer_id },
+            });
 
-        const token = user?.notify_token;
+            const token = user?.notify_token;
 
-        if (token) {
-            expoNotiService.sendExpoNotify(
-                'Lịch hẹn của bạn đã bị huỷ!',
-                'Rất tiếc lịch hẹn của bạn đã bị huỷ do quá giờ mà bạn chưa tới :(',
-                'error',
-                'high',
-                token,
-                user.id,
-            );
+            if (token) {
+                expoNotiService.sendExpoNotify(
+                    'Lịch hẹn của bạn đã bị huỷ!',
+                    'Rất tiếc lịch hẹn của bạn đã bị huỷ do quá giờ mà bạn chưa tới :(',
+                    'error',
+                    'high',
+                    token,
+                    user.id,
+                );
+            }
         }
 
         // send notification to user
