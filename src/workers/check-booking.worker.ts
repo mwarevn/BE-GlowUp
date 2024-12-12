@@ -1,6 +1,6 @@
 import { BookingStatus } from '@prisma/client';
 import * as cron from 'node-cron';
-import { formatDate, localDate, utcDate } from 'src/common/utils';
+import { formatDate, localDate, logger, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { addCheckBookingQueue, getCheckBookingQueueJob, removeJob } from 'src/queues/check-booking-queue';
 
@@ -31,7 +31,7 @@ export const scheduleBookingCheck = async (booking) => {
         const existsJob = await getCheckBookingQueueJob(booking.id);
 
         if (existsJob === null) {
-            console.log(
+            logger.info(
                 '\n[' +
                     localDate(startTime).toLocaleString() +
                     '] - Tự động hủy lịch sẽ chạy sau: ' +
@@ -49,11 +49,11 @@ export const scheduleBookingCheck = async (booking) => {
             );
         } else {
             if (existsJob.finishedOn) {
-                console.log('remove  exists');
+                logger.info('[-] Remove  existing job from queue.');
                 removeJob(booking.id);
             }
         }
     } catch (error) {
-        console.log(error);
+        logger.debug(error);
     }
 };

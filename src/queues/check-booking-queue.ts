@@ -1,5 +1,6 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
+import { logger } from 'src/common/utils';
 import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 
@@ -15,7 +16,7 @@ const checkBookingQueue = new Queue('check-booking-queue', {
 
 checkBookingQueue.process(8, async (job: any) => {
     try {
-        console.log('Check booking queue: starting job');
+        logger.info('[i] Check booking queue: starting job');
         const payload = job.data.data;
         const action = job.data.action;
 
@@ -65,7 +66,7 @@ checkBookingQueue.process(8, async (job: any) => {
         //     reson: 'Time out!',
         // });
     } catch (error) {
-        console.log(error);
+        logger.debug(error);
         return { success: false, message: error.message };
     }
 

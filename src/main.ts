@@ -13,7 +13,7 @@ import { SocketGateway } from 'src/modules/socket/socket.gateway';
 let socketGateway: SocketGateway;
 import * as mongoose from 'mongoose';
 import * as partials from 'express-partials';
-import { localDate, utcDate } from 'src/common/utils';
+import { localDate, logger, utcDate } from 'src/common/utils';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -35,7 +35,7 @@ async function bootstrap() {
     app.useStaticAssets(join(__dirname, '..', 'public'));
     // app protections
     app.enableCors({
-        origin: ['http://localhost:3001', 'https://fastsave.live', 'https://minhcuder.xyz'],
+        origin: ['http://localhost:3001', 'https://fastsave.live', 'https://minhcuder.xyz', 'https://minhcuder.com'],
         credentials: true,
     });
     // app.use(csurf()); //
@@ -71,19 +71,16 @@ async function bootstrap() {
             mongoose
                 .connect(process.env.MONGODB_CONECTION_STRING)
                 .then(() => {
-                    console.log('[+] MongoDB connected\n\n');
+                    logger.info('MongoDB connected\n\n');
                 })
-                .catch(console.error);
+                .catch(logger.error);
         })
         .then(() => {
-            console.clear();
-            console.log('────────────────────────────────────────────────────────────────────────────────');
-            console.log('\n');
-            console.log(`[!] Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
-            console.log('[+] Application running on PORT: ' + PORT);
-            console.log('[+] Swagger running on: http://localhost:' + PORT + '/api-docs');
-            console.log('[i] Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
-            console.log('[i] Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
+            logger.warn(`Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
+            logger.info('Application running on PORT: ' + PORT);
+            logger.info('Swagger running on: http://localhost:' + PORT + '/api-docs');
+            logger.info('Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
+            logger.info('Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
         });
 }
 
@@ -94,7 +91,7 @@ export function notifyUser(userId: string, notification: any) {
     if (socketGateway) {
         socketGateway.sendNotificationToUser(userId, notification);
     } else {
-        console.error('SocketGateway is not initialized.');
+        logger.error('SocketGateway is not initialized.');
     }
 }
 
@@ -102,6 +99,6 @@ export function broadcastNotification(notification: any) {
     if (socketGateway) {
         socketGateway.broadcastNotification(notification);
     } else {
-        console.error('SocketGateway is not initialized.');
+        logger.error('SocketGateway is not initialized.');
     }
 }

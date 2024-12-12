@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
-import { formatDate, isDateInRange, selectFileds, utcDate } from 'src/common/utils';
+import { formatDate, isDateInRange, logger, selectFileds, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { BookingStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
@@ -69,9 +69,7 @@ export class BookingService {
 
         const notify_token = booking.customer?.notify_token;
 
-        // console.log(booking);
         if (notify_token) {
-            // console.log(notify_token);
             this.expoNotiService.sendExpoNotify(
                 'Booking đã bị hủy',
                 'Đã hủy booking của bạn',
@@ -111,15 +109,9 @@ export class BookingService {
             throw new Error('Không tìm thấy booking!.');
         }
 
-        // if (booking.status === BookingStatus.CANCELED) {
-        //     throw new Error('Booking này đã bị hủy!.');
-        // }
-
         const notify_token = booking.customer?.notify_token;
 
-        // console.log(booking);
         if (notify_token) {
-            console.log(notify_token);
             this.expoNotiService
                 .sendExpoNotify(
                     'Booking đã bị hủy',
@@ -130,12 +122,8 @@ export class BookingService {
                     booking.customer_id,
                 )
                 .then((res) => res.json())
-                .then((res) => {
-                    console.log(res);
-                })
-                .catch((err) => {
-                    console.log({ errorSendNotify: err });
-                });
+                .then((res) => {})
+                .catch(logger.debug);
         }
 
         return await PrismaDB.booking.update({
@@ -292,8 +280,6 @@ export class BookingService {
                 break;
         }
 
-        console.log(coditions);
-
         const booking = await PrismaDB.booking.findMany({
             where: {
                 AND: coditions,
@@ -403,10 +389,8 @@ export class BookingService {
         // if (!isDateInRange(newStartTime)) {
         //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         // }
-        // console.log(updateBookingDto);
 
         if (updateBookingDto.stylist_id && updateBookingDto.stylist_id !== currentBooking.stylist_id) {
-            console.log('coin card');
             const stylist = await PrismaDB.user.findUnique({
                 where: {
                     id: updateBookingDto.stylist_id as any,

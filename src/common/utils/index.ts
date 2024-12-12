@@ -3,6 +3,28 @@ import { Request } from 'express';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
+import * as winston from 'winston';
+const format = winston.format;
+const { combine, timestamp, label, prettyPrint } = format;
+
+const customFormat = winston.format.printf(({ level, message, timestamp }) => {
+    return `${localDate(new Date(timestamp as string)).toLocaleString()} [${level}]: ${message}`;
+});
+
+export const logger = winston.createLogger({
+    levels: {
+        error: 0,
+        warn: 1,
+        info: 2,
+        http: 3,
+        verbose: 4,
+        debug: 5,
+        silly: 6,
+    },
+    level: 'silly',
+    format: winston.format.combine(winston.format.colorize({ all: true }), winston.format.simple(), timestamp(), customFormat),
+    transports: [new winston.transports.Console()],
+});
 
 export const hashPasswd = async (plainTextPassword) => {
     const salt = await bcrypt.genSalt();
@@ -83,15 +105,12 @@ export const formatDate = (dateTime: Date) => {
 export function isDateInRange(dateString) {
     const date = localDate(new Date(dateString));
 
-    console.log({ dateString });
-
     // // Kiểm tra ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
     // const dayOfWeek = date.getUTCDay();
     // if (dayOfWeek < 1 || dayOfWeek > 6) {
     //     return false; // Không phải thứ Hai đến thứ 7
     // }
 
-    // Kiểm tra giờ
     const hours = date.getUTCHours();
     const minutes = date.getUTCMinutes();
     const isInTimeRange = (hours > 8 || (hours === 8 && minutes >= 0)) && (hours < 20 || (hours === 20 && minutes <= 30));

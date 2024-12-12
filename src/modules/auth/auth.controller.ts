@@ -25,6 +25,7 @@ import * as bcrypt from 'bcrypt';
 import { ForgotPasswdDTO } from 'src/modules/auth/dto/forgot-password.dto';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
+import { logger } from 'src/common/utils';
 
 @Controller('auth')
 export class AuthController {
@@ -79,14 +80,13 @@ export class AuthController {
 
             res.cookie('access_token', access_token, options);
             res.cookie('refresh_token', refresh_token, options);
-            //
+
             return res.json({
                 refresh_token,
                 access_token,
                 result: validUser,
             });
         } catch (error) {
-            // console.log(error);
             return res.status(HttpStatus.UNAUTHORIZED).json({
                 success: false,
                 statusCode: HttpStatus.UNAUTHORIZED,
@@ -99,16 +99,8 @@ export class AuthController {
 
     @Get('logout')
     async logout(@Req() req: Request, @Param('id') id: string, @Res() res: Response) {
-        // const result = await this.authService.logout(id);
-
-        // if (!result) {
-        //   throw new BadRequestException('Can not logout now !');
-        // }
-
         res.json({ success: true });
     }
-
-    // TODO: handle change number phone
 
     @Post('change-password/:id')
     @UseGuards(AuthGuard)
@@ -244,7 +236,7 @@ export class AuthController {
                 throw new UnauthorizedException();
             }
         } catch (error) {
-            console.log(error);
+            logger.debug(error);
             throw new UnauthorizedException();
         }
     }
