@@ -40,7 +40,7 @@ checkBookingQueue.process(8, async (job: any) => {
             });
         }
 
-        if (payload.data.booking.customer_id) {
+        if (payload.data.booking?.customer_id) {
             const user = await PrismaDB.user.findUnique({
                 where: { id: payload.data.booking.customer_id },
             });
