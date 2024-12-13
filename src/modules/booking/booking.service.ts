@@ -90,7 +90,7 @@ export class BookingService {
         });
     }
 
-    async changeBookingStatus(phone: string, booking_id: string, status: BookingStatus) {
+    async changeBookingStatus(phone: string, booking_id: string, status: BookingStatus, user: User) {
         const booking = await PrismaDB.booking.findUnique({
             where: {
                 id: booking_id,
@@ -111,7 +111,7 @@ export class BookingService {
 
         const notify_token = booking.customer?.notify_token;
 
-        if (notify_token) {
+        if (notify_token && (user.role === Roles.ADMIN || user.role === Roles.STYLIST)) {
             this.expoNotiService
                 .sendExpoNotify(
                     'Booking đã bị hủy',

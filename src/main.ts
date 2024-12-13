@@ -17,7 +17,7 @@ import { localDate, logger, utcDate } from 'src/common/utils';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-        logger: ['error', 'warn', 'debug', 'verbose', 'fatal'],
+        // logger: ['error', 'warn', 'debug', 'verbose', 'fatal'],
     });
 
     const PORT = process.env.PORT || 3000;
