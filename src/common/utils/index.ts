@@ -111,8 +111,8 @@ export function isDateInRange(dateString) {
     //     return false; // Không phải thứ Hai đến thứ 7
     // }
 
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
     const isInTimeRange = (hours > 8 || (hours === 8 && minutes >= 0)) && (hours < 20 || (hours === 20 && minutes <= 30));
 
     return isInTimeRange;
