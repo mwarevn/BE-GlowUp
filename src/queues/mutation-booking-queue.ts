@@ -17,9 +17,9 @@ bookingQueue.process(1, async (job: any) => {
     const payload = job.data.data;
     const action = job.data.action;
 
-    const newEndTime = utcDate(new Date(payload.end_time as any));
-    const newStartTime = utcDate(new Date(payload.start_time as any));
-    const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } };
+    const newEndTime = new Date(payload.end_time as any);
+    const newStartTime = new Date(payload.start_time as any);
+    const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.DELAYING] } };
 
     try {
         const conflictingStylist = await PrismaDB.booking.findMany({
@@ -117,7 +117,6 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
 
 async function handleCreateBooking(payload, conflictingStylist, conflictingCustomer) {
     try {
-        console.log({ conflictingStylist });
         if (conflictingStylist.length > 0) {
             return {
                 success: false,

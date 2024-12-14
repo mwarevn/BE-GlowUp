@@ -29,7 +29,7 @@ function convertMillisecondsToMinutes(milliseconds) {
 }
 
 function checkTimeBeforeStart(startTime) {
-    const currentTime = localDate(new Date());
+    const currentTime = new Date();
     const timeDifference = startTime.getTime() - currentTime.getTime();
 
     const thirtyMinutesInMs = 30 * 60 * 1000;
@@ -39,10 +39,10 @@ function checkTimeBeforeStart(startTime) {
 
 export const bookingReminder = async (booking) => {
     try {
-        const startTime = utcDate(new Date(booking.start_time));
+        const startTime = new Date(booking.start_time);
         const checkTime = new Date(startTime.getTime() - 30 * 60 * 1000); // 30 phút trước khi đến lịch hẹn
 
-        const now = utcDate(new Date());
+        const now = new Date();
         const delay = checkTimeBeforeStart(startTime) ? 0 : checkTime.getTime() - now.getTime();
 
         // logger.info(
@@ -84,10 +84,10 @@ export const bookingReminder = async (booking) => {
 
 export const scheduleBookingCheck = async (booking) => {
     try {
-        const startTime = utcDate(new Date(booking.start_time));
-        const checkTime = utcDate(new Date(startTime.getTime() + 20 * 60 * 1000)); /// 20 phút sau
+        const startTime = new Date(booking.start_time);
+        const checkTime = new Date(startTime.getTime() + 20 * 60 * 1000); /// 20 phút sau
 
-        const now = utcDate(new Date());
+        const now = new Date();
         const delay = checkTime.getTime() - now.getTime();
 
         const existsJob = await getCheckBookingQueueJob(booking.id);

@@ -18,8 +18,8 @@ export class AnalysisService {
             throw new Error('Ngày giờ không hợp lệ!');
         } else {
             try {
-                utcDate(new Date(start_date));
-                utcDate(new Date(end_date));
+                new Date(start_date);
+                new Date(end_date);
             } catch (error) {
                 throw new Error('Ngày giờ không hợp lệ!');
             }
@@ -36,10 +36,10 @@ export class AnalysisService {
         const bookings = await PrismaDB.booking.findMany({
             where: {
                 start_time: {
-                    gte: utcDate(new Date(start_date.replace(' ', '+'))),
+                    gte: new Date(start_date.replace(' ', '+')),
                 },
                 end_time: {
-                    lte: utcDate(new Date(end_date.replace(' ', '+'))),
+                    lte: new Date(end_date.replace(' ', '+')),
                 },
 
                 ...options,

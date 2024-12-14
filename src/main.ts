@@ -13,7 +13,7 @@ import { SocketGateway } from 'src/modules/socket/socket.gateway';
 let socketGateway: SocketGateway;
 import * as mongoose from 'mongoose';
 import * as partials from 'express-partials';
-import { localDate, logger, utcDate } from 'src/common/utils';
+import { localDate, logger, utcDate, vietNamTime } from 'src/common/utils';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -79,9 +79,16 @@ async function bootstrap() {
             logger.warn(`Make sure you have started the redis server (localhost and port: ${process.env.REDIS_PORT})!`);
             logger.info('Application running on PORT: ' + PORT);
             logger.info('Swagger running on: http://localhost:' + PORT + '/api-docs');
-            logger.info('Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
-            logger.info('Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
-            logger.info(new Date());
+            // const date = vietNamTime(new Date());
+            // console.log(date);
+
+            // // console.log(vietNamTime(new Date()));
+            // const hours = date.split(':')[0];
+            // const minutes = date.split(':')[1];
+
+            // console.log(hours, minutes);
+
+            // console.log(new Date());
         });
 }
 

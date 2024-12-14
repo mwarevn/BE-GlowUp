@@ -145,18 +145,18 @@ export class BookingService {
      * - Customer không thể order 2 lần trong cùng 1 khoảng thời gian.
      */
     async create(createBookingDto: CreateBookingDto) {
-        const newEndTime = utcDate(new Date(createBookingDto.end_time as any));
-        const newStartTime = utcDate(new Date(createBookingDto.start_time as any));
+        const newEndTime = new Date(createBookingDto.end_time as string);
+        const newStartTime = new Date(createBookingDto.start_time as string);
 
         if (newEndTime <= newStartTime) {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        if (newStartTime < utcDate(new Date())) {
+        if (newStartTime < new Date()) {
             throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
         }
 
-        if (!isDateInRange(newStartTime)) {
+        if (!isDateInRange(createBookingDto.start_time)) {
             throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         } // 8h - 20h30
         const stylist = await PrismaDB.user.findUnique({
@@ -361,8 +361,8 @@ export class BookingService {
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
-        const newEndTime = utcDate(new Date(updateBookingDto.end_time as any));
-        const newStartTime = utcDate(new Date(updateBookingDto.start_time as any));
+        const newEndTime = new Date(updateBookingDto.end_time as any);
+        const newStartTime = new Date(updateBookingDto.start_time as any);
 
         const currentBooking = await PrismaDB.booking.findUnique({
             where: { id },
@@ -377,7 +377,7 @@ export class BookingService {
                 throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
             }
 
-            if (newStartTime < utcDate(new Date())) {
+            if (newStartTime < new Date()) {
                 throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
             }
         }
