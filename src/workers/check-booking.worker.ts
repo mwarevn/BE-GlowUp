@@ -1,24 +1,86 @@
 import { BookingStatus } from '@prisma/client';
 import * as cron from 'node-cron';
-import { formatDate, localDate, logger, utcDate } from 'src/common/utils';
+import { localDate, logger, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { addCheckBookingQueue, getCheckBookingQueueJob, removeJob } from 'src/queues/check-booking-queue';
+import {
+    addCheckBookingQueue,
+    addReminderJob,
+    getCheckBookingQueueJob,
+    getReminderJob,
+    removeJob,
+    removeReminderJob,
+} from 'src/queues/check-booking-queue';
 
 cron.schedule('* * * * *', async () => {
     const pendingBookings = await PrismaDB.booking.findMany({
         where: {
-            status: BookingStatus.PENDING,
+            status: BookingStatus.CONFIRMED,
         },
     });
 
     pendingBookings.forEach((booking) => {
         scheduleBookingCheck(booking);
+        bookingReminder(booking);
     });
 });
 function convertMillisecondsToMinutes(milliseconds) {
     const minutes = Math.floor(milliseconds / (1000 * 60));
     return `${minutes} phút`;
 }
+
+function checkTimeBeforeStart(startTime) {
+    const currentTime = localDate(new Date());
+    const timeDifference = startTime.getTime() - currentTime.getTime();
+
+    const thirtyMinutesInMs = 30 * 60 * 1000;
+
+    return timeDifference <= thirtyMinutesInMs;
+}
+
+export const bookingReminder = async (booking) => {
+    try {
+        const startTime = utcDate(new Date(booking.start_time));
+        const checkTime = new Date(startTime.getTime() - 30 * 60 * 1000); // 30 phút trước khi đến lịch hẹn
+
+        const now = utcDate(new Date());
+        const delay = checkTimeBeforeStart(startTime) ? 0 : checkTime.getTime() - now.getTime();
+
+        // logger.info(
+        //     '[' +
+        //         localDate(startTime).toLocaleString() +
+        //         '] - Nhắc nhở lịch sẽ chạy sau: ' +
+        //         convertMillisecondsToMinutes(delay) +
+        //         ' nữa.',
+        // );
+        const existsJob = await getReminderJob(booking.id);
+
+        if (existsJob === null) {
+            logger.info(
+                '[' +
+                    localDate(startTime).toLocaleString() +
+                    '] - Nhắc nhở lịch sẽ chạy sau: ' +
+                    convertMillisecondsToMinutes(delay) +
+                    ' nữa.',
+            );
+            addReminderJob(
+                {
+                    data: {
+                        booking,
+                    },
+                },
+                'booking-reminder',
+                delay > 0 ? delay : 0,
+            );
+        } else {
+            if (existsJob.finishedOn) {
+                logger.info('[-] Remove  existing job from queue.');
+                removeReminderJob(booking.id);
+            }
+        }
+    } catch (error) {
+        logger.debug(error);
+    }
+};
 
 export const scheduleBookingCheck = async (booking) => {
     try {

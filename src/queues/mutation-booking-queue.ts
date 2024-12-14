@@ -117,6 +117,7 @@ async function handleUpdateBooking(payload, conflictingStylist, conflictingCusto
 
 async function handleCreateBooking(payload, conflictingStylist, conflictingCustomer) {
     try {
+        console.log({ conflictingStylist });
         if (conflictingStylist.length > 0) {
             return {
                 success: false,

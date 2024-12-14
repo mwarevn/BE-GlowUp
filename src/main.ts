@@ -17,7 +17,7 @@ import { localDate, logger, utcDate } from 'src/common/utils';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-        // logger: ['error', 'warn', 'debug', 'verbose', 'fatal'],
+        logger: ['error', 'warn', 'debug', 'verbose', 'fatal'],
     });
 
     const PORT = process.env.PORT || 3000;
@@ -81,6 +81,7 @@ async function bootstrap() {
             logger.info('Swagger running on: http://localhost:' + PORT + '/api-docs');
             logger.info('Giờ hiện tại: ' + localDate(new Date()).toLocaleString());
             logger.info('Giờ quốc tế: ' + utcDate(new Date()).toUTCString());
+            logger.info(new Date());
         });
 }
 

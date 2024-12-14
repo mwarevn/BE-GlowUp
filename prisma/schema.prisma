@@ -139,6 +139,7 @@ model Banner {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  DELAYING
   CANCELED
   COMPLETED
 }
@@ -161,8 +162,10 @@ model Booking {
 
   payment_status PaymentStatus @default(PENDING)
 
+  isReminded Boolean? @default(false)
+
   customer User?  @relation("CustomerBooking", fields: [customer_id], references: [id])
-  stylist  User   @relation("StylistBooking", fields: [stylist_id], references: [id])
+  stylist  User?  @relation("StylistBooking", fields: [stylist_id], references: [id])
   combo    Combo? @relation(fields: [combo_id], references: [id])
 
   @@index([combo_id, customer_id, stylist_id, status])
