@@ -152,9 +152,9 @@ export class BookingService {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        if (newStartTime < new Date()) {
-            throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
-        }
+        // if (newStartTime < new Date(new Date().getTime() - 7 * 60 * 60 * 1000).toISOString()) {
+        //     throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+        // }
 
         if (!isDateInRange(createBookingDto.start_time)) {
             throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
@@ -377,9 +377,9 @@ export class BookingService {
                 throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
             }
 
-            if (newStartTime < new Date()) {
-                throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
-            }
+            // if (newStartTime < new Date()) {
+            //     throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+            // }
         }
 
         // if (newEndTime <= newStartTime) {

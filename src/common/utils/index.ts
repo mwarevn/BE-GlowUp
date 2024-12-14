@@ -89,6 +89,8 @@ export const uploadSingleImageThirdParty = async (req: Request) => {
 export function isDateInRange(dateString) {
     const date = vietNamTime(new Date(dateString));
 
+    console.log(date);
+
     const hours = Number(date.split(':')[0]);
     const minutes = Number(date.split(':')[1]);
 
