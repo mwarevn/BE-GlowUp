@@ -50,7 +50,7 @@ export class ServiceController {
                 return res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
-                    message: `The service name must be unique. The value you provided already exists.`,
+                    message: `Tên dịch vụ đã tồn tại .`,
                     result: null,
                     path: '/service',
                 });

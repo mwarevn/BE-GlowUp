@@ -62,7 +62,7 @@ export class ComboController {
                     return res.status(HttpStatus.NOT_FOUND).json({
                         success: false,
                         statusCode: HttpStatus.NOT_FOUND,
-                        message: `Service id ${service} not found`,
+                        message: `Id dịch vụ ${service} không tồn tại`,
                         result: null,
                         path: '/combo',
                     });
@@ -77,7 +77,7 @@ export class ComboController {
                 return res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
-                    message: `The combo name must be unique. The value you provided already exists.`,
+                    message: `Tên combo phải là duy nhất. Giá trị bạn cung cấp đã tồn tại.`,
                     result: null,
                     path: '/combo',
                 });
@@ -198,7 +198,7 @@ export class ComboController {
                 return res.json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
-                    message: `The combo name must be unique. The value you provided already exists.`,
+                    message: `Tên combo phải là duy nhất. Giá trị bạn cung cấp đã tồn tại.`,
                     result: null,
                     path: '/combo',
                 });
