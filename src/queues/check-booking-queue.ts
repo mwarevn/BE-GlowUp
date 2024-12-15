@@ -106,6 +106,7 @@ const handleReminder = async (job: any) => {
         const booking = await PrismaDB.booking.findUnique({
             where: {
                 id: payload.data.booking.id,
+                isReminded: false,
             },
             select: {
                 status: true,
@@ -114,13 +115,13 @@ const handleReminder = async (job: any) => {
             },
         });
 
-        if (booking && !booking.isReminded && booking.status != BookingStatus.CANCELED) {
+        if (booking && booking.status != BookingStatus.CANCELED) {
             await PrismaDB.booking.update({
                 where: {
                     id: booking.id,
                 },
                 data: {
-                    isReminded: !booking.isReminded, // true
+                    isReminded: true, // true
                 },
             });
         }
