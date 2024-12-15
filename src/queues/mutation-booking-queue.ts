@@ -161,6 +161,6 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
 }
 
 export function addBookingQueue(data: any, action: string) {
-    logger.info('[+] Added Booking Queue...');
+    logger.info('[+] Mutation booking...');
     return bookingQueue.add({ data, action });
 }

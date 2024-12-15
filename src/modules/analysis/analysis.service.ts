@@ -108,6 +108,13 @@ export class AnalysisService {
                 createdAt: 'desc',
             },
             take: 20,
+            include: {
+                combo: {
+                    select: {
+                        services: true,
+                    },
+                },
+            },
         });
 
         return {
