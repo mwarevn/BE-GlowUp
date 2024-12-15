@@ -87,11 +87,7 @@ export class AnalysisService {
                 },
             },
             include: {
-                combo: {
-                    select: {
-                        services: true,
-                    },
-                },
+                combo: true,
             },
         });
 
