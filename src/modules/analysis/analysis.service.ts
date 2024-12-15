@@ -106,6 +106,8 @@ export class AnalysisService {
             take: 20,
             include: {
                 combo: true,
+                customer: true,
+                stylist: true,
             },
         });
 
