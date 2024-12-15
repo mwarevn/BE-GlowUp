@@ -103,7 +103,7 @@ export class PaymentController {
                 vnp_Params['vnp_BankCode'] = bankCode;
             }
             vnp_Params = this.sortObject(vnp_Params);
-            console.log(vnp_Params);
+
             let signData = querystring.stringify(vnp_Params, { encode: false });
             const hmac = crypto.createHmac('sha512', secretKey);
             const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');

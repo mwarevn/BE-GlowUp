@@ -96,7 +96,6 @@ export class ServiceController {
         @Req() req: Request,
         @Res() res: Response,
     ) {
-        console.log(updateServiceDto.picture);
         try {
             if (!mongoose.Types.ObjectId.isValid(id))
                 return res.status(HttpStatus.BAD_REQUEST).json({
