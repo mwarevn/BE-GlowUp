@@ -4,7 +4,7 @@ import { UpdateAnalysisDto } from './dto/update-analysis.dto';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { selectFileds, utcDate } from 'src/common/utils';
 import { populateBookingData } from 'src/modules/booking/booking.service';
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, PaymentStatus } from '@prisma/client';
 
 @Injectable()
 export class AnalysisService {
@@ -97,18 +97,55 @@ export class AnalysisService {
 
         // recent booking - 20
         const recent_bookings = await PrismaDB.booking.findMany({
-            // where: {
-            //     status: BookingStatus.COMPLETED,
-            // },
+            where: {
+                createdAt: {
+                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                    lt: new Date(new Date().setHours(23, 59, 59, 999)),
+                },
+            },
             orderBy: {
                 createdAt: 'desc',
             },
-            take: 20,
+            // take: 20,
             include: {
                 combo: true,
                 customer: true,
                 stylist: true,
             },
+        });
+
+        // monthly revenue
+        const startOfYear = new Date(new Date().getFullYear(), 0, 1); // Bắt đầu năm
+        const endOfYear = new Date(new Date().getFullYear() + 1, 0, 1); // Bắt đầu năm sau
+
+        const bookings = await PrismaDB.booking.findMany({
+            where: {
+                createdAt: {
+                    gte: startOfYear,
+                    lt: endOfYear,
+                },
+                payment_status: PaymentStatus.PAID, // Chỉ lấy các booking đã thanh toán
+            },
+            include: {
+                combo: true,
+                customer: true,
+                stylist: true,
+            },
+        });
+
+        // Khởi tạo mảng doanh thu hàng tháng
+        const monthlyRevenue = Array.from({ length: 12 }, (_, i) => ({
+            name: `Tháng ${i + 1}`,
+            total: 0,
+        }));
+
+        // Chuyển đổi booking dữ liệu
+        const transformedBookings = await Promise.all(bookings.map(async (item) => await populateBookingData(item)));
+
+        // Tính toán doanh thu theo tháng
+        transformedBookings.forEach((booking) => {
+            const month = booking.createdAt.getMonth(); // Lấy tháng (0-11)
+            monthlyRevenue[month].total += booking?.total_price || 0; // Cộng doanh thu vào tháng tương ứng
         });
 
         return {
@@ -117,6 +154,7 @@ export class AnalysisService {
             today_evenue,
             total_pending_booking: pendingBookings.length,
             recent_bookings: await Promise.all(recent_bookings.map(async (item) => await populateBookingData(item))),
+            chart: monthlyRevenue,
         };
     }
 
