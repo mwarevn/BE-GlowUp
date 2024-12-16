@@ -204,6 +204,8 @@ export class BookingService {
         const newEndTime = new Date(createBookingDto.end_time as string);
         const newStartTime = new Date(createBookingDto.start_time as string);
 
+        console.log({ start_time: createBookingDto.start_time });
+
         if (newEndTime <= newStartTime) {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }

@@ -87,12 +87,15 @@ export const uploadSingleImageThirdParty = async (req: Request) => {
 };
 
 export function isDateInRange(dateString) {
-    const date = vietNamTime(new Date(dateString));
+    // console.log(dateString);
+    const date = localDate(new Date(dateString));
+    // const date = new Date(dateString);
+    // console.log(date);
 
-    console.log(date);
+    console.log({ date });
 
-    const hours = Number(date.split(':')[0]);
-    const minutes = Number(date.split(':')[1]);
+    // const hours = Number(date.toString().split(':')[0]);
+    // const minutes = Number(date.toString().split(':')[1]);
 
     // // Kiểm tra ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
     // const dayOfWeek = date.getUTCDay();
@@ -100,8 +103,8 @@ export function isDateInRange(dateString) {
     //     return false; // Không phải thứ Hai đến thứ 7
     // }
 
-    // const hours = date.getHours();
-    // const minutes = date.getMinutes();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
     const isInTimeRange = (hours > 8 || (hours === 8 && minutes >= 0)) && (hours < 20 || (hours === 20 && minutes <= 30));
 
     return isInTimeRange;
@@ -128,10 +131,10 @@ export function localDate(date: Date) {
     if (!(date instanceof Date) || isNaN(date.getTime())) {
         throw new Error('Invalid date input');
     }
-    const localHours = date.getUTCHours() + 7;
-    if (localHours === date.getHours()) {
-        return date;
-    }
+    // const localHours = date.getUTCHours() + 7;
+    // if (localHours === date.getHours()) {
+    //     return date;
+    // }
     return new Date(date.getTime() + 7 * 60 * 60 * 1000);
 }
 
