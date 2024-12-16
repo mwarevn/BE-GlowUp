@@ -1,5 +1,6 @@
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { logger } from 'src/common/utils';
 
 @WebSocketGateway({
     cors: {
@@ -13,7 +14,7 @@ export class SocketGateway {
     private users = new Map<string, string>(); // userId -> socketId
 
     handleConnection(client: Socket) {
-        console.log(`Client connected: ${client.id}`);
+        logger.info(`Client connected: ${client.id}`);
         this.broadcastNotification({ type: 'success' });
     }
 
@@ -25,20 +26,19 @@ export class SocketGateway {
                 break;
             }
         }
-        console.log(`Client disconnected: ${client.id}`);
+        logger.error(`Client disconnected: ${client.id}`);
     }
 
     // for client register user id
     @SubscribeMessage('register')
     handleRegister(client: Socket, userId: string) {
         this.users.set(userId, client.id);
-        console.log(`User ${userId} registered with socket ${client.id}`);
+        logger.info(`User ${userId} registered with socket ${client.id}`);
     }
 
     // send notification to user
     sendNotificationToUser(userId: string, notification: any) {
         const socketId = this.users.get(userId);
-        console.log('socketId: ' + socketId);
         if (socketId) {
             this.server.to(socketId).emit('notification', notification);
         }

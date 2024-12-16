@@ -62,7 +62,7 @@ export class ComboController {
                     return res.status(HttpStatus.NOT_FOUND).json({
                         success: false,
                         statusCode: HttpStatus.NOT_FOUND,
-                        message: `Service id ${service} not found`,
+                        message: `Id dịch vụ ${service} không tồn tại`,
                         result: null,
                         path: '/combo',
                     });
@@ -77,7 +77,7 @@ export class ComboController {
                 return res.status(HttpStatus.CONFLICT).json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
-                    message: `The combo name must be unique. The value you provided already exists.`,
+                    message: `Tên combo phải là duy nhất. Giá trị bạn cung cấp đã tồn tại.`,
                     result: null,
                     path: '/combo',
                 });
@@ -198,7 +198,7 @@ export class ComboController {
                 return res.json({
                     success: false,
                     statusCode: HttpStatus.CONFLICT,
-                    message: `The combo name must be unique. The value you provided already exists.`,
+                    message: `Tên combo phải là duy nhất. Giá trị bạn cung cấp đã tồn tại.`,
                     result: null,
                     path: '/combo',
                 });
@@ -217,6 +217,21 @@ export class ComboController {
     async remove(@Param('id') id: string, @Res() res: Response) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json(`not found mongoose Types ObjectId ${id}`);
+            const booking = await PrismaDB.booking.findMany({
+                where: {
+                    combo_id: id,
+                },
+            });
+
+            if (booking.length > 0) {
+                return res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: 'Combo đã tồn tại trong booking',
+                    result: null,
+                });
+            }
+
             const combo = await this.comboService.remove(id);
             return res.status(200).json({ success: true });
         } catch (error) {

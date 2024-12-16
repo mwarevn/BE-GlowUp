@@ -23,7 +23,7 @@ import mongoose from 'mongoose';
 import { uploadSingleImageInterceptor } from 'src/common/configs/upload';
 import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { AdminGuard } from 'src/common/guards/roles.guard';
-import { uploadSingleImageThirdParty } from 'src/common/utils';
+import { logger, uploadSingleImageThirdParty } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
 import { UpdateNumberphoneDTO } from 'src/modules/user/dto/user.update-number_phone.dto';
 import { UpdateProfileUserDTO } from 'src/modules/user/dto/user.update.dto';
@@ -36,11 +36,9 @@ export class UserController {
     @Delete(':id')
     @UseGuards(AuthGuard, AdminGuard)
     async deleteUser(@Res() res: Response) {
-        console.log(
-            await PrismaDB.user.delete({
-                where: { id: '66eff159557a6976231f5151' },
-            }),
-        );
+        await PrismaDB.user.delete({
+            where: { id: '66eff159557a6976231f5151' },
+        });
 
         res.json({ success: true });
     }
@@ -52,29 +50,23 @@ export class UserController {
         @Req() req: Request,
         @Res() res: Response,
     ) {
-        console.log(123);
         // const current_user = req['user'];
-
         // if (current_user['phone_number'] === updateNumberphoneDto.phone_number) {
         //   return res.json({ success: true });
         // }
-
         // try {
         //   const exitsUser = await this.userService.getUser({
         //     number_phone: updateNumberphoneDto.phone_number,
         //   });
-
         //   if (exitsUser) {
         //     throw new BadRequestException(
         //       'This number phone is already exist on system!',
         //     );
         //   }
-
         //   const updatedUser = await this.userService.updatePhoneNumber(
         //     current_user['id'],
         //     updateNumberphoneDto.phone_number,
         //   );
-
         //   if (!updatedUser) {
         //     throw new ServiceUnavailableException();
         //   }
@@ -91,7 +83,6 @@ export class UserController {
         @Param('id') id: string,
         @Res() res: Response,
     ) {
-        // console.log(updateProfileDTO);
         if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
 
         const user = req['user'];
@@ -113,7 +104,7 @@ export class UserController {
 
             return res.json({ success: true, data: updatedUser });
         } catch (error) {
-            console.log(error.message);
+            logger.debug(error);
             throw new BadRequestException('Kiểm tra lại định dạng dữ liệu!');
         }
     }
@@ -130,7 +121,7 @@ export class UserController {
         if (!mongoose.Types.ObjectId.isValid(id)) return `not found mongoose Types ObjectId ${id}`;
 
         const user = req['user'];
-        console.log(user);
+
         if (user['id'] !== id) {
             throw new ForbiddenException();
         }

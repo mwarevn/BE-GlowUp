@@ -1,6 +1,6 @@
 import { BookingStatus } from '@prisma/client';
 import * as Queue from 'bull';
-import { selectFileds, utcDate } from 'src/common/utils';
+import { logger, selectFileds, utcDate } from 'src/common/utils';
 import { broadcastNotification } from 'src/main';
 import { ExpoNotiService } from 'src/modules/expo-noti/expo-noti.service';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
@@ -17,9 +17,9 @@ bookingQueue.process(1, async (job: any) => {
     const payload = job.data.data;
     const action = job.data.action;
 
-    const newEndTime = utcDate(new Date(payload.end_time as any));
-    const newStartTime = utcDate(new Date(payload.start_time as any));
-    const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED] } };
+    const newEndTime = new Date(payload.end_time as any);
+    const newStartTime = new Date(payload.start_time as any);
+    const statusOption = { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.DELAYING] } };
 
     try {
         const conflictingStylist = await PrismaDB.booking.findMany({
@@ -44,13 +44,12 @@ bookingQueue.process(1, async (job: any) => {
             case 'create':
                 return await handleCreateBooking(payload, conflictingStylist, conflictingCustomer);
             case 'update':
-                console.log('Update booking');
                 return await handleUpdateBooking(payload, conflictingStylist, conflictingCustomer);
             default:
                 return { success: false, message: 'Invalid action!' };
         }
     } catch (error) {
-        console.log(error);
+        logger.debug(error);
         return { success: false, message: error.message };
     }
 });
@@ -60,7 +59,7 @@ const notifyExpoService = new ExpoNotiService();
 async function handleUpdateBooking(payload, conflictingStylist, conflictingCustomer) {
     const id = payload.id;
     delete payload.id;
-    console.log(payload);
+
     try {
         if (conflictingStylist.length > 0 && conflictingStylist[0].id !== payload.stylist_id) {
             return {
@@ -162,6 +161,6 @@ async function handleCreateBooking(payload, conflictingStylist, conflictingCusto
 }
 
 export function addBookingQueue(data: any, action: string) {
-    console.log('[+] Added Booking Queue...');
+    logger.info('[+] Mutation booking...');
     return bookingQueue.add({ data, action });
 }

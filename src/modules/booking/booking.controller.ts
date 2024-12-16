@@ -1,13 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, BadRequestException, HttpStatus, Res } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    Query,
+    BadRequestException,
+    HttpStatus,
+    Res,
+    UseGuards,
+    Req,
+} from '@nestjs/common';
 import { BookingService } from './booking.service';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
 import { BookingQuery } from 'src/modules/booking/constant';
 import path from 'path';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { isDateInRange } from 'src/common/utils';
 import { removeJob } from 'src/queues/check-booking-queue';
-import { BookingStatus } from '@prisma/client';
+import { BookingStatus, PaymentStatus, User } from '@prisma/client';
+import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('booking')
 export class BookingController {
@@ -32,15 +47,18 @@ export class BookingController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Get('change-booking-status')
     async changeBookingStatus(
         @Query('phone') phone: string,
         @Query('booking_id') booking_id: string,
         @Query('status') status: BookingStatus,
         @Res() res: Response,
+        @Req() req: Request,
     ) {
         try {
-            const booking = await this.bookingService.changeBookingStatus(phone, booking_id, status);
+            const user: any = req['user'] as unknown as User;
+            const booking = await this.bookingService.changeBookingStatus(phone, booking_id, status, user);
 
             if (booking) {
                 removeJob(booking_id);
@@ -59,6 +77,62 @@ export class BookingController {
             });
         }
     }
+
+    @Get('change-booking-payment-status')
+    async changeBookingPaymentStatus(
+        @Query('phone') phone: string,
+        @Query('booking_id') booking_id: string,
+        @Query('payment_status') payment_status: PaymentStatus,
+        @Res() res: Response,
+    ) {
+        try {
+            const booking = await this.bookingService.changeBookingPaymentStatus(phone, booking_id, payment_status);
+
+            if (booking) {
+                removeJob(booking_id);
+            }
+
+            return res.status(200).json({
+                success: true,
+                result: booking,
+            });
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+                success: false,
+                statusCode: HttpStatus.BAD_REQUEST,
+                message: error.message,
+                result: null,
+            });
+        }
+    }
+
+    // @Get('change-booking-payment-status')
+    // async changeBookingPaymentStatus(
+    //     @Query('phone') phone: string,
+    //     @Query('booking_id') booking_id: string,
+    //     @Query('payment_status') payment_status: PaymentStatus,
+    //     @Res() res: Response,
+    // ) {
+    //     try {
+    //         const booking = await this.bookingService.changeBookingPaymentStatus(phone, booking_id, payment_status);
+
+    //         if (booking) {
+    //             removeJob(booking_id);
+    //         }
+
+    //         return res.status(200).json({
+    //             success: true,
+    //             result: booking,
+    //         });
+    //     } catch (error) {
+    //         return res.status(HttpStatus.BAD_REQUEST).json({
+    //             success: false,
+    //             statusCode: HttpStatus.BAD_REQUEST,
+    //             message: error.message,
+    //             result: null,
+    //         });
+    //     }
+    // }
 
     @Post()
     async create(@Body() createBookingDto: CreateBookingDto, @Res() res: Response) {

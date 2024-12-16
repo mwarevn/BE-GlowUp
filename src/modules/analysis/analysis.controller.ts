@@ -12,6 +12,15 @@ export class AnalysisController {
         return this.analysisService.create(createAnalysisDto);
     }
 
+    @Get('over-view')
+    async overview() {
+        try {
+            return await this.analysisService.overView();
+        } catch (error) {
+            throw new BadRequestException(error.message);
+        }
+    }
+
     @Get('revenue')
     async findAll(
         @Query('start_date') start_date: string,

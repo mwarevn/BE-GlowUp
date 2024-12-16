@@ -3,6 +3,28 @@ import { Request } from 'express';
 import * as fs from 'fs';
 import * as FormData from 'form-data';
 import fetch from 'node-fetch';
+import * as winston from 'winston';
+const format = winston.format;
+const { combine, timestamp, label, prettyPrint } = format;
+
+const customFormat = winston.format.printf(({ level, message, timestamp }) => {
+    return `${localDate(new Date(timestamp as string)).toLocaleString()} [${level}]: ${message}`;
+});
+
+export const logger = winston.createLogger({
+    levels: {
+        error: 0,
+        warn: 1,
+        info: 2,
+        http: 3,
+        verbose: 4,
+        debug: 5,
+        silly: 6,
+    },
+    level: 'silly',
+    format: winston.format.combine(winston.format.colorize({ all: true }), winston.format.simple(), timestamp(), customFormat),
+    transports: [new winston.transports.Console()],
+});
 
 export const hashPasswd = async (plainTextPassword) => {
     const salt = await bcrypt.genSalt();
@@ -64,46 +86,54 @@ export const uploadSingleImageThirdParty = async (req: Request) => {
     return dedata;
 };
 
-export const formatDate = (dateTime: Date) => {
-    const formatter = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Ho_Chi_Minh',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        fractionalSecondDigits: 3,
-    });
-    const parts = formatter.formatToParts(dateTime);
-    const dateString = `${parts[4].value}-${parts[2].value}-${parts[0].value}T${parts[6].value}:${parts[8].value}:${parts[10].value}.${String(new Date().getMilliseconds()).padStart(3, '0')}Z`;
-    return dateString as unknown as Date;
-};
-
 export function isDateInRange(dateString) {
     const date = localDate(new Date(dateString));
 
-    console.log({ dateString });
-
-    // // Kiểm tra ngày trong tuần (0: Chủ nhật, 1: Thứ Hai, ..., 6: Thứ Bảy)
-    // const dayOfWeek = date.getUTCDay();
-    // if (dayOfWeek < 1 || dayOfWeek > 6) {
-    //     return false; // Không phải thứ Hai đến thứ 7
-    // }
-
-    // Kiểm tra giờ
     const hours = date.getUTCHours();
     const minutes = date.getUTCMinutes();
+
     const isInTimeRange = (hours > 8 || (hours === 8 && minutes >= 0)) && (hours < 20 || (hours === 20 && minutes <= 30));
 
     return isInTimeRange;
 }
 
+export const vietNamTime = (date) => {
+    return date.toLocaleString('vi-VN', {
+        timeZone: 'Asia/Ho_Chi_Minh',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour12: false,
+    });
+};
+
+export const ISOTime = (date) => {
+    return date.toISOString();
+};
+
 export function localDate(date: Date) {
-    const localTimeString = date.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
-    return new Date(localTimeString);
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        throw new Error('Invalid date input');
+    }
+    // const localHours = date.getUTCHours() + 7;
+    // if (localHours === date.getHours()) {
+    //     return date;
+    // }
+    return new Date(date.getTime() + 7 * 60 * 60 * 1000);
 }
 
 export function utcDate(date: Date) {
-    return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        throw new Error('Invalid date input');
+    }
+
+    const utcHours = date.getUTCHours();
+    if (utcHours === date.getHours()) {
+        return date;
+    }
+
+    return new Date(date.getTime() - 7 * 60 * 60 * 1000);
 }

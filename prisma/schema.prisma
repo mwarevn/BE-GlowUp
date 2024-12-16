@@ -139,8 +139,10 @@ model Banner {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  DELAYING
   CANCELED
   COMPLETED
+  UNCONFIRMED
 }
 
 model Booking {
@@ -154,15 +156,17 @@ model Booking {
   phone_number String?
   full_name    String?
 
-  status    BookingStatus @default(PENDING)
+  status    BookingStatus @default(UNCONFIRMED)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   deleted   Boolean       @default(false)
 
   payment_status PaymentStatus @default(PENDING)
 
+  isReminded Boolean? @default(false)
+
   customer User?  @relation("CustomerBooking", fields: [customer_id], references: [id])
-  stylist  User   @relation("StylistBooking", fields: [stylist_id], references: [id])
+  stylist  User?  @relation("StylistBooking", fields: [stylist_id], references: [id])
   combo    Combo? @relation(fields: [combo_id], references: [id])
 
   @@index([combo_id, customer_id, stylist_id, status])

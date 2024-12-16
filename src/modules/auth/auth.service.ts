@@ -97,7 +97,7 @@ export class AuthService {
     async generateAccessToken(payload: any) {
         return await this.jwtService.signAsync(payload, {
             secret: process.env.JWT_ACCESS_SECRET,
-            expiresIn: '8m',
+            expiresIn: '28m',
         });
     }
 

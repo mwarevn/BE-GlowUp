@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as https from 'https';
+import { logger } from 'src/common/utils';
 
 const apiKeySid = process.env.STRINGEE_KEY_SID;
 const apiKeySecret = process.env.STRINGEE_KEY_SECRET;
@@ -36,21 +37,21 @@ export class OtpService {
         });
 
         const req = https.request(options, function (res) {
-            console.log('STATUS:', res.statusCode);
-            console.log('HEADERS:', JSON.stringify(res.headers));
+            logger.info('STATUS:', res.statusCode);
+            logger.info('HEADERS:', JSON.stringify(res.headers));
             res.setEncoding('utf8');
 
             res.on('data', function (chunk) {
-                console.log('BODY:', chunk);
+                logger.info('BODY:', chunk);
             });
 
             res.on('end', function () {
-                console.log('No more data in response.');
+                logger.info('No more data in response.');
             });
         });
 
         req.on('error', function (e) {
-            console.log('Problem with request:', e.message);
+            logger.error('Problem with request:', e.message);
         });
 
         req.write(postData);

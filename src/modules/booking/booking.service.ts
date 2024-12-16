@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { UpdateBookingDto } from './dto/update-booking.dto';
-import { formatDate, isDateInRange, selectFileds, utcDate } from 'src/common/utils';
+import { isDateInRange, logger, selectFileds, utcDate } from 'src/common/utils';
 import { PrismaDB } from 'src/modules/prisma/prisma.extensions';
-import { BookingStatus, Roles } from '@prisma/client';
+import { BookingStatus, PaymentStatus, Roles } from '@prisma/client';
 import { addBookingQueue } from 'src/queues/mutation-booking-queue';
 import { BookingQuery } from 'src/modules/booking/constant';
 import { removeJob } from 'src/queues/check-booking-queue';
@@ -69,9 +69,7 @@ export class BookingService {
 
         const notify_token = booking.customer?.notify_token;
 
-        // console.log(booking);
         if (notify_token) {
-            // console.log(notify_token);
             this.expoNotiService.sendExpoNotify(
                 'Booking đã bị hủy',
                 'Đã hủy booking của bạn',
@@ -92,7 +90,53 @@ export class BookingService {
         });
     }
 
-    async changeBookingStatus(phone: string, booking_id: string, status: BookingStatus) {
+    async changeBookingStatus(phone: string, booking_id: string, status: BookingStatus, user: User) {
+        const booking = await PrismaDB.booking.findUnique({
+            where: {
+                id: booking_id,
+            },
+            include: {
+                customer: {
+                    select: {
+                        notify_token: true,
+                        ...selectFileds,
+                    },
+                },
+            },
+        });
+
+        if (!booking) {
+            throw new Error('Không tìm thấy booking!.');
+        }
+
+        const notify_token = booking.customer?.notify_token;
+
+        if (notify_token && (user.role === Roles.ADMIN || user.role === Roles.STYLIST)) {
+            this.expoNotiService
+                .sendExpoNotify(
+                    'Booking đã bị hủy',
+                    'Đã hủy booking của bạn',
+                    'success',
+                    'high',
+                    booking.customer.notify_token,
+                    booking.customer_id,
+                )
+                .then((res) => res.json())
+                .then((res) => {})
+                .catch(logger.debug);
+        }
+
+        return await PrismaDB.booking.update({
+            where: {
+                id: booking_id,
+            },
+            data: {
+                status,
+            },
+        });
+    }
+
+    async changeBookingPaymentStatus(phone: string, booking_id: string, payment_status: PaymentStatus) {
         const booking = await PrismaDB.booking.findUnique({
             where: {
                 id: booking_id,
@@ -122,8 +166,8 @@ export class BookingService {
             console.log(notify_token);
             this.expoNotiService
                 .sendExpoNotify(
-                    'Booking đã bị hủy',
-                    'Đã hủy booking của bạn',
+                    'Thanh toán đã bị hủy',
+                    'Đã hủy thanh toán của bạn',
                     'success',
                     'high',
                     booking.customer.notify_token,
@@ -143,7 +187,7 @@ export class BookingService {
                 id: booking_id,
             },
             data: {
-                status,
+                payment_status,
             },
         });
     }
@@ -157,18 +201,20 @@ export class BookingService {
      * - Customer không thể order 2 lần trong cùng 1 khoảng thời gian.
      */
     async create(createBookingDto: CreateBookingDto) {
-        const newEndTime = utcDate(new Date(createBookingDto.end_time as any));
-        const newStartTime = utcDate(new Date(createBookingDto.start_time as any));
+        const newEndTime = new Date(createBookingDto.end_time as string);
+        const newStartTime = new Date(createBookingDto.start_time as string);
+
+        console.log({ start_time: createBookingDto.start_time });
 
         if (newEndTime <= newStartTime) {
             throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
         }
 
-        if (newStartTime < utcDate(new Date())) {
-            throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
-        }
+        // if (newStartTime < new Date(new Date().getTime() - 7 * 60 * 60 * 1000).toISOString()) {
+        //     throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+        // }
 
-        if (!isDateInRange(newStartTime)) {
+        if (!isDateInRange(createBookingDto.start_time)) {
             throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         } // 8h - 20h30
         const stylist = await PrismaDB.user.findUnique({
@@ -292,11 +338,12 @@ export class BookingService {
                 break;
         }
 
-        console.log(coditions);
-
         const booking = await PrismaDB.booking.findMany({
             where: {
                 AND: coditions,
+            },
+            orderBy: {
+                createdAt: 'desc',
             },
             include: {
                 combo: {
@@ -375,8 +422,8 @@ export class BookingService {
     }
 
     async update(id: string, updateBookingDto: UpdateBookingDto) {
-        const newEndTime = utcDate(new Date(updateBookingDto.end_time as any));
-        const newStartTime = utcDate(new Date(updateBookingDto.start_time as any));
+        const newEndTime = new Date(updateBookingDto.end_time as any);
+        const newStartTime = new Date(updateBookingDto.start_time as any);
 
         const currentBooking = await PrismaDB.booking.findUnique({
             where: { id },
@@ -391,9 +438,9 @@ export class BookingService {
                 throw new Error('Thời gian kết thúc phải sau thời gian bắt đầu!.');
             }
 
-            if (newStartTime < utcDate(new Date())) {
-                throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
-            }
+            // if (newStartTime < new Date()) {
+            //     throw new Error('Thời gian bắt đầu không thể nhỏ hơn thời gian hiện tại!.');
+            // }
         }
 
         // if (newEndTime <= newStartTime) {
@@ -403,10 +450,8 @@ export class BookingService {
         // if (!isDateInRange(newStartTime)) {
         //     throw new Error('Ngày và giờ này tiệm đã đóng cửa!.');
         // }
-        // console.log(updateBookingDto);
 
         if (updateBookingDto.stylist_id && updateBookingDto.stylist_id !== currentBooking.stylist_id) {
-            console.log('coin card');
             const stylist = await PrismaDB.user.findUnique({
                 where: {
                     id: updateBookingDto.stylist_id as any,
