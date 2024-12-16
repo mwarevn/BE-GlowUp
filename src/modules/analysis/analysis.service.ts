@@ -98,13 +98,13 @@ export class AnalysisService {
         // recent booking - 20
         const recent_bookings = await PrismaDB.booking.findMany({
             where: {
-                createdAt: {
+                start_time: {
                     gte: new Date(new Date().setHours(0, 0, 0, 0)),
                     lt: new Date(new Date().setHours(23, 59, 59, 999)),
                 },
             },
             orderBy: {
-                createdAt: 'desc',
+                start_time: 'desc',
             },
             // take: 20,
             include: {
@@ -115,16 +115,16 @@ export class AnalysisService {
         });
 
         // monthly revenue
-        const startOfYear = new Date(new Date().getFullYear(), 0, 1); // Bắt đầu năm
-        const endOfYear = new Date(new Date().getFullYear() + 1, 0, 1); // Bắt đầu năm sau
+        const startOfYear = new Date(new Date().getFullYear(), 0, 1);
+        const endOfYear = new Date(new Date().getFullYear() + 1, 0, 1);
 
         const bookings = await PrismaDB.booking.findMany({
             where: {
-                createdAt: {
+                start_time: {
                     gte: startOfYear,
                     lt: endOfYear,
                 },
-                payment_status: PaymentStatus.PAID, // Chỉ lấy các booking đã thanh toán
+                payment_status: PaymentStatus.PAID,
             },
             include: {
                 combo: true,
@@ -133,19 +133,16 @@ export class AnalysisService {
             },
         });
 
-        // Khởi tạo mảng doanh thu hàng tháng
         const monthlyRevenue = Array.from({ length: 12 }, (_, i) => ({
             name: `Tháng ${i + 1}`,
             total: 0,
         }));
 
-        // Chuyển đổi booking dữ liệu
         const transformedBookings = await Promise.all(bookings.map(async (item) => await populateBookingData(item)));
 
-        // Tính toán doanh thu theo tháng
         transformedBookings.forEach((booking) => {
-            const month = booking.createdAt.getMonth(); // Lấy tháng (0-11)
-            monthlyRevenue[month].total += booking?.total_price || 0; // Cộng doanh thu vào tháng tương ứng
+            const month = new Date(booking.start_time).getUTCMonth();
+            monthlyRevenue[month].total += booking?.total_price || 0;
         });
 
         return {
