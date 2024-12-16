@@ -34,6 +34,7 @@ export class AnalysisService {
         const completedBookings = await PrismaDB.booking.findMany({
             where: {
                 status: BookingStatus.COMPLETED,
+                payment_status: PaymentStatus.PAID,
             },
             include: {
                 combo: {
@@ -49,14 +50,24 @@ export class AnalysisService {
         ).reduce((acc, item) => acc + item.total_price, 0);
 
         // const this_month_revenue
+        // Lấy múi giờ hiện tại
+        let localTimezoneOffset = new Date().getTimezoneOffset() * 60000; // tính bằng mili giây
 
-        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+        // Tạo startOfMonth và endOfMonth
+        const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // 00h 00m ngày đầu tháng
+        const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0); // 23h 59m 59s ngày cuối tháng
+
+        // Điều chỉnh cho múi giờ
+        startOfMonth.setTime(startOfMonth.getTime() - localTimezoneOffset);
+        endOfMonth.setHours(23, 59, 59, 999); // Đảm bảo endOfMonth là 23h 59m 59s
+
+        // console.log({ startOfMonth, endOfMonth });
 
         const completedBookingsThisMonth = await PrismaDB.booking.findMany({
             where: {
                 status: BookingStatus.COMPLETED,
-                createdAt: {
+                payment_status: PaymentStatus.PAID,
+                start_time: {
                     gte: startOfMonth,
                     lte: endOfMonth,
                 },
@@ -74,14 +85,15 @@ export class AnalysisService {
             await Promise.all(completedBookingsThisMonth.map(async (item) => await populateBookingData(item)))
         ).reduce((acc, item) => acc + item.total_price, 0);
 
-        // today
-        const startOfToday = new Date(new Date().setHours(0, 0, 0, 0));
-        const endOfToday = new Date(new Date().setHours(23, 59, 59, 999));
+        localTimezoneOffset = new Date().getTimezoneOffset() * 60000;
+        const startOfToday = new Date(new Date().setHours(0, 0, 0, 0) - localTimezoneOffset); // 00h 00m của hôm nay
+        const endOfToday = new Date(new Date().setHours(23, 59, 59, 999) - localTimezoneOffset); // 23h 59m 59s
 
         const completedBookingsToday = await PrismaDB.booking.findMany({
             where: {
                 status: BookingStatus.COMPLETED,
-                createdAt: {
+                payment_status: PaymentStatus.PAID,
+                start_time: {
                     gte: startOfToday,
                     lte: endOfToday,
                 },

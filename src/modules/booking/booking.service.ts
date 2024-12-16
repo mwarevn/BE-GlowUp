@@ -342,6 +342,9 @@ export class BookingService {
             where: {
                 AND: coditions,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
             include: {
                 combo: {
                     select: {

@@ -142,6 +142,7 @@ enum BookingStatus {
   DELAYING
   CANCELED
   COMPLETED
+  UNCONFIRMED
 }
 
 model Booking {
@@ -155,7 +156,7 @@ model Booking {
   phone_number String?
   full_name    String?
 
-  status    BookingStatus @default(PENDING)
+  status    BookingStatus @default(UNCONFIRMED)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   deleted   Boolean       @default(false)
