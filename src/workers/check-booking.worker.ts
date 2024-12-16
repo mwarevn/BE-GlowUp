@@ -14,7 +14,9 @@ import {
 cron.schedule('* * * * *', async () => {
     const pendingBookings = await PrismaDB.booking.findMany({
         where: {
-            status: BookingStatus.CONFIRMED,
+            status: {
+                in: [BookingStatus.CONFIRMED, BookingStatus.DELAYING],
+            },
         },
     });
 
@@ -94,7 +96,7 @@ export const scheduleBookingCheck = async (booking) => {
 
         if (existsJob === null) {
             logger.info(
-                '\n[' +
+                '[' +
                     localDate(startTime).toLocaleString() +
                     '] - Tự động hủy lịch sẽ chạy sau: ' +
                     convertMillisecondsToMinutes(delay > 0 ? delay : 0) +

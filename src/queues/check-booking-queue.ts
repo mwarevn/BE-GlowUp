@@ -33,7 +33,7 @@ checkBookingQueue.process(8, async (job: any) => {
             },
         });
 
-        if (booking && booking.status === BookingStatus.CONFIRMED) {
+        if (booking && booking.status === BookingStatus.DELAYING) {
             await PrismaDB.booking.update({
                 where: {
                     id: booking.id,
