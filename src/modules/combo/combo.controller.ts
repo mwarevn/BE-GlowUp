@@ -217,6 +217,21 @@ export class ComboController {
     async remove(@Param('id') id: string, @Res() res: Response) {
         try {
             if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json(`not found mongoose Types ObjectId ${id}`);
+            const booking = await PrismaDB.booking.findMany({
+                where: {
+                    combo_id: id,
+                },
+            });
+
+            if (booking.length > 0) {
+                return res.status(HttpStatus.BAD_REQUEST).json({
+                    success: false,
+                    statusCode: HttpStatus.BAD_REQUEST,
+                    message: 'Combo đã tồn tại trong booking',
+                    result: null,
+                });
+            }
+
             const combo = await this.comboService.remove(id);
             return res.status(200).json({ success: true });
         } catch (error) {
